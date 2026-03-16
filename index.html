@@ -389,6 +389,128 @@ header {
   flex-shrink: 0;
 }
 
+/* ── PRESETS ── */
+.preset-section {
+  padding: 4px 20px 10px;
+}
+.preset-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 6px;
+}
+.preset-chip {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  overflow: hidden;
+  height: 30px;
+  transition: border-color .15s;
+}
+.preset-chip:hover { border-color: var(--green); }
+.preset-load {
+  padding: 0 10px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 1px;
+  height: 100%;
+}
+.preset-load:active { color: var(--green); }
+.preset-del {
+  padding: 0 8px 0 4px;
+  font-size: 11px;
+  color: var(--muted2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  height: 100%;
+  line-height: 1;
+}
+.preset-del:active { color: var(--red); }
+.preset-save-btn {
+  height: 30px;
+  padding: 0 12px;
+  background: var(--green-dim);
+  border: 1px solid rgba(74,222,128,.25);
+  border-radius: 20px;
+  color: var(--green);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .12s;
+}
+.preset-save-btn:active { background: var(--green); color: var(--bg); }
+
+/* Modal de nommage */
+.preset-modal-wrap {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(17,18,20,.88);
+  z-index: 300;
+  align-items: center;
+  justify-content: center;
+}
+.preset-modal-wrap.active { display: flex; }
+.preset-modal {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  padding: 24px 20px;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.preset-modal-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--text);
+}
+.preset-modal input {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  color: var(--text);
+  outline: none;
+  caret-color: var(--green);
+  width: 100%;
+}
+.preset-modal input:focus { border-color: var(--green); }
+.preset-modal-btns { display: flex; gap: 8px; }
+.preset-modal-btns button {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--muted);
+}
+.preset-modal-btns .pm-confirm {
+  background: var(--green);
+  color: var(--bg);
+  border-color: var(--green);
+}
+.preset-modal-btns .pm-confirm:active { background: #3ac96e; }
+
 /* ── TOGGLE ── */
 .toggle-row {
   display: flex;
@@ -767,10 +889,18 @@ header {
         <span class="summary-val" id="sum-i-total">—</span>
       </div>
     </div>
+    <div class="preset-section">
+      <div class="sec-title" style="padding:8px 0 4px">Presets</div>
+      <div class="preset-bar" id="presets-interval">
+        <button class="preset-save-btn" onclick="openPresetModal('interval')">+ Sauvegarder</button>
+      </div>
+    </div>
     <div class="start-wrap">
       <button class="start-btn" onclick="startInterval()">Lancer</button>
     </div>
   </div>
+
+  <!-- ════════════ DÉGRESSIF ════════════ -->
   <div class="screen" id="screen-degressive">
     <div class="sec-title">Ajouter un palier</div>
     <div class="deg-add-card">
@@ -805,6 +935,12 @@ header {
         <span class="summary-val" id="sum-d-total">—</span>
       </div>
     </div>
+    <div class="preset-section">
+      <div class="sec-title" style="padding:8px 0 4px">Presets</div>
+      <div class="preset-bar" id="presets-degressive">
+        <button class="preset-save-btn" onclick="openPresetModal('degressive')">+ Sauvegarder</button>
+      </div>
+    </div>
     <div class="start-wrap">
       <button class="start-btn" onclick="startDegressive()">Lancer</button>
     </div>
@@ -826,6 +962,12 @@ header {
                  onblur="inputTime('c_cap',this)" onkeydown="if(event.key==='Enter')this.blur()">
           <button class="spin-btn" onclick="adj('c_cap',30)">+</button>
         </div>
+      </div>
+    </div>
+    <div class="preset-section">
+      <div class="sec-title" style="padding:8px 0 4px">Presets</div>
+      <div class="preset-bar" id="presets-chrono">
+        <button class="preset-save-btn" onclick="openPresetModal('chrono')">+ Sauvegarder</button>
       </div>
     </div>
     <div class="start-wrap">
@@ -902,6 +1044,18 @@ header {
   </div>
 
 </div><!-- /app -->
+
+<!-- PRESET MODAL -->
+<div class="preset-modal-wrap" id="preset-modal-wrap">
+  <div class="preset-modal">
+    <div class="preset-modal-title">Nom du preset</div>
+    <input type="text" id="preset-name-input" maxlength="24" placeholder="Ex: HIIT 30/15">
+    <div class="preset-modal-btns">
+      <button onclick="closePresetModal()">Annuler</button>
+      <button class="pm-confirm" onclick="confirmSavePreset()">Sauvegarder</button>
+    </div>
+  </div>
+</div>
 
 <div id="countdown-overlay">
   <div class="cd-number" id="cd-number">10</div>
@@ -1586,6 +1740,111 @@ function finishTimer() {
 }
 
 // ══════════════════════════════════════════════
+//  PRESETS
+// ══════════════════════════════════════════════
+const PRESETS_KEY = 'sporttimer_presets';
+let presets = { interval: [], degressive: [], chrono: [] };
+let _pendingPresetMode = null;
+
+function loadPresets() {
+  try {
+    const raw = localStorage.getItem(PRESETS_KEY);
+    if (raw) presets = { interval: [], degressive: [], chrono: [], ...JSON.parse(raw) };
+  } catch(e) {}
+}
+
+function savePresets() {
+  try { localStorage.setItem(PRESETS_KEY, JSON.stringify(presets)); } catch(e) {}
+}
+
+function openPresetModal(mode) {
+  _pendingPresetMode = mode;
+  const input = document.getElementById('preset-name-input');
+  input.value = '';
+  document.getElementById('preset-modal-wrap').classList.add('active');
+  setTimeout(() => input.focus(), 100);
+}
+
+function closePresetModal() {
+  document.getElementById('preset-modal-wrap').classList.remove('active');
+  _pendingPresetMode = null;
+}
+
+function confirmSavePreset() {
+  const name = document.getElementById('preset-name-input').value.trim();
+  if (!name || !_pendingPresetMode) return;
+  const mode = _pendingPresetMode;
+
+  let config;
+  if (mode === 'interval') {
+    config = { exo: vals.i_exo, rest: vals.i_rest, reps: vals.i_reps };
+  } else if (mode === 'degressive') {
+    config = { steps: JSON.parse(JSON.stringify(degSteps)) };
+  } else {
+    config = { cap: timecapOn ? vals.c_cap : 0, timecapOn };
+  }
+
+  presets[mode].push({ name, config });
+  savePresets();
+  renderPresets(mode);
+  closePresetModal();
+}
+
+function loadPreset(mode, idx) {
+  const p = presets[mode][idx];
+  if (!p) return;
+  if (mode === 'interval') {
+    vals.i_exo  = p.config.exo;
+    vals.i_rest = p.config.rest;
+    vals.i_reps = p.config.reps;
+    renderAll();
+    updateSummaryInterval();
+  } else if (mode === 'degressive') {
+    degSteps = JSON.parse(JSON.stringify(p.config.steps));
+    renderDegList();
+  } else {
+    timecapOn = p.config.timecapOn;
+    if (timecapOn) vals.c_cap = p.config.cap;
+    document.getElementById('timecap-toggle').classList.toggle('on', timecapOn);
+    document.getElementById('timecap-field').style.display = timecapOn ? 'flex' : 'none';
+    renderAll();
+  }
+  saveState();
+}
+
+function deletePreset(mode, idx) {
+  presets[mode].splice(idx, 1);
+  savePresets();
+  renderPresets(mode);
+}
+
+function renderPresets(mode) {
+  const bar = document.getElementById('presets-' + mode);
+  if (!bar) return;
+  // Keep save button
+  bar.innerHTML = `<button class="preset-save-btn" onclick="openPresetModal('${mode}')">+ Sauvegarder</button>`;
+  presets[mode].forEach((p, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'preset-chip';
+    chip.innerHTML = `
+      <button class="preset-load" onclick="loadPreset('${mode}',${i})">${p.name}</button>
+      <button class="preset-del" onclick="deletePreset('${mode}',${i})">✕</button>
+    `;
+    bar.appendChild(chip);
+  });
+}
+
+function renderAllPresets() {
+  ['interval','degressive','chrono'].forEach(renderPresets);
+}
+
+// Enter key in modal
+document.getElementById('preset-name-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmSavePreset();
+  if (e.key === 'Escape') closePresetModal();
+});
+
+// ══════════════════════════════════════════════
 //  PERSISTENCE — localStorage
 // ══════════════════════════════════════════════
 const STORAGE_KEY = 'sporttimer_state';
@@ -1621,8 +1880,10 @@ function loadState() {
 //  INIT
 // ══════════════════════════════════════════════
 loadState();
+loadPresets();
 renderAll();
 renderDegList();
+renderAllPresets();
 
 ['touchstart','click','keydown'].forEach(ev =>
   document.addEventListener(ev, () => { try { ctx(); } catch(e){} }, { once: true })

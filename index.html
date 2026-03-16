@@ -9,6 +9,33 @@
 <title>Sport Timer</title>
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/FolexMOG/FolexSportTimer/6a59d9f182c70b84f1c3f32d8fb1670aac3f4b8e/FolexSportTimer.png">
 <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/FolexMOG/FolexSportTimer/6a59d9f182c70b84f1c3f32d8fb1670aac3f4b8e/FolexSportTimer.png">
+<script>
+// ── Inline Web App Manifest (blob pour PWA single-file) ──
+(function(){
+  const manifest = {
+    name: "Sport Timer",
+    short_name: "SportTimer",
+    description: "Interval, dégressif et chrono timer",
+    start_url: ".",
+    display: "standalone",
+    orientation: "portrait",
+    background_color: "#111214",
+    theme_color: "#111214",
+    icons: [{
+      src: "https://raw.githubusercontent.com/FolexMOG/FolexSportTimer/6a59d9f182c70b84f1c3f32d8fb1670aac3f4b8e/FolexSportTimer.png",
+      sizes: "512x512",
+      type: "image/png",
+      purpose: "any maskable"
+    }]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
+  const url  = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel   = 'manifest';
+  link.href  = url;
+  document.head.appendChild(link);
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -1167,6 +1194,31 @@ renderDegList();
 ['touchstart','click','keydown'].forEach(ev =>
   document.addEventListener(ev, () => { try { ctx(); } catch(e){} }, { once: true })
 );
+
+// ── Inline Service Worker (requis pour PWA installable sur Android) ──
+if ('serviceWorker' in navigator) {
+  const swCode = `
+    const CACHE = 'sport-timer-v1';
+    self.addEventListener('install', e => {
+      self.skipWaiting();
+    });
+    self.addEventListener('activate', e => {
+      e.waitUntil(clients.claim());
+    });
+    self.addEventListener('fetch', e => {
+      e.respondWith(
+        caches.match(e.request).then(r => r || fetch(e.request))
+      );
+    });
+  `;
+  const swBlob = new Blob([swCode], {type: 'application/javascript'});
+  const swUrl  = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swUrl, {scope: '/'})
+    .catch(() => {
+      // scope '/' peut échouer sur fichier local — on réessaie sans scope
+      navigator.serviceWorker.register(swUrl).catch(() => {});
+    });
+}
 </script>
 </body>
 </html>

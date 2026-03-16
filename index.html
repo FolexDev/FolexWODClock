@@ -1029,6 +1029,7 @@ function adj(key, delta) {
   vals[key] = Math.min(mx, Math.max(mn, vals[key] + delta));
   renderVal(key);
   updateSummaryInterval();
+  saveState();
 }
 
 function renderVal(key) {
@@ -1061,6 +1062,7 @@ function inputTime(key, el) {
   }
   renderVal(key);
   updateSummaryInterval();
+  saveState();
 }
 
 function inputReps(key, el) {
@@ -1071,6 +1073,7 @@ function inputReps(key, el) {
   }
   renderVal(key);
   updateSummaryInterval();
+  saveState();
 }
 
 // ── SUMMARY CALCULATIONS ──
@@ -1121,10 +1124,12 @@ function toggleTimecap() {
 function addDegStep() {
   degSteps.push({ exo: vals.d_exo, rest: vals.d_rest });
   renderDegList();
+  saveState();
 }
 function removeDeg(i) {
   degSteps.splice(i, 1);
   renderDegList();
+  saveState();
 }
 function renderDegList() {
   const el = document.getElementById('deg-list');
@@ -1155,6 +1160,7 @@ function moveDeg(i, dir) {
   if (j < 0 || j >= degSteps.length) return;
   [degSteps[i], degSteps[j]] = [degSteps[j], degSteps[i]];
   renderDegList();
+  saveState();
 }
 
 // ── Drag & drop (desktop + touch) ──
@@ -1185,6 +1191,7 @@ function initDragDrop() {
         const moved = degSteps.splice(_dragIdx, 1)[0];
         degSteps.splice(targetIdx, 0, moved);
         renderDegList();
+        saveState();
       }
     });
 
@@ -1221,6 +1228,7 @@ function initDragDrop() {
           const moved = degSteps.splice(_dragIdx, 1)[0];
           degSteps.splice(targetIdx, 0, moved);
           renderDegList();
+          saveState();
           return;
         }
       }
@@ -1578,15 +1586,42 @@ function finishTimer() {
 }
 
 // ══════════════════════════════════════════════
+//  PERSISTENCE — localStorage
+// ══════════════════════════════════════════════
+const STORAGE_KEY = 'sporttimer_state';
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ vals, degSteps }));
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    // Restore vals — only known keys, clamp to limits
+    if (s.vals) {
+      Object.keys(s.vals).forEach(k => {
+        if (k in vals && k in limits) {
+          const [mn, mx] = limits[k];
+          vals[k] = Math.min(mx, Math.max(mn, Number(s.vals[k]) || vals[k]));
+        }
+      });
+    }
+    // Restore degSteps
+    if (Array.isArray(s.degSteps) && s.degSteps.length) {
+      degSteps = s.degSteps.filter(s => s.exo > 0);
+    }
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
+loadState();
 renderAll();
-degSteps = [
-  { exo: 240, rest: 60 },
-  { exo: 180, rest: 60 },
-  { exo: 120, rest: 60 },
-  { exo:  60, rest:  0 }
-];
 renderDegList();
 
 ['touchstart','click','keydown'].forEach(ev =>

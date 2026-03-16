@@ -37,7 +37,7 @@
 })();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:       #111214;
@@ -313,6 +313,45 @@ header {
   letter-spacing: 1px;
 }
 
+/* ── SUMMARY CARD ── */
+.summary-card {
+  margin: 10px 20px 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.summary-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.summary-lbl {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.summary-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  color: var(--green);
+  letter-spacing: 1px;
+  line-height: 1;
+}
+.summary-sep {
+  width: 1px;
+  height: 36px;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
 /* ── TOGGLE ── */
 .toggle-row {
   display: flex;
@@ -393,19 +432,18 @@ header {
 
 .ring-wrap {
   position: relative;
-  width: 220px; height: 220px;
+  width: 280px; height: 280px;
   margin: 8px 0 12px;
 }
-.ring-svg { width: 220px; height: 220px; transform: rotate(-90deg); }
+.ring-svg { width: 280px; height: 280px; transform: rotate(-90deg); }
 .ring-track { fill: none; stroke: var(--border); stroke-width: 10; }
 .ring-fill {
   fill: none;
   stroke: var(--green);
   stroke-width: 10;
   stroke-linecap: round;
-  stroke-dasharray: 628;
+  stroke-dasharray: 817;
   stroke-dashoffset: 0;
-  transition: stroke-dashoffset .8s linear, stroke .3s;
   filter: drop-shadow(0 0 10px rgba(74,222,128,.5));
 }
 .ring-fill.rest {
@@ -417,15 +455,15 @@ header {
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
-  width: 180px;
+  width: 220px;
 }
 .ring-time {
-  font-family: 'Syne', sans-serif;
-  font-size: clamp(42px, 12vw, 54px);
-  font-weight: 800;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 72px;
+  font-weight: 400;
   color: var(--text);
-  line-height: .95;
-  letter-spacing: -1px;
+  line-height: 1;
+  letter-spacing: 2px;
   transition: color .3s;
 }
 .ring-time.rest { color: var(--amber); }
@@ -521,9 +559,9 @@ header {
 }
 #countdown-overlay.active { display: flex; }
 .cd-number {
-  font-family: 'Syne', sans-serif;
-  font-size: clamp(110px, 38vw, 160px);
-  font-weight: 800;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(140px, 45vw, 200px);
+  font-weight: 400;
   color: var(--text);
   line-height: 1;
   animation: cdPop .25s cubic-bezier(.2,1.6,.4,1);
@@ -626,12 +664,21 @@ header {
         </div>
       </div>
     </div>
+    <div class="summary-card" id="summary-interval">
+      <div class="summary-item">
+        <span class="summary-lbl">Exercice total</span>
+        <span class="summary-val" id="sum-i-exo">—</span>
+      </div>
+      <div class="summary-sep"></div>
+      <div class="summary-item">
+        <span class="summary-lbl">Durée totale</span>
+        <span class="summary-val" id="sum-i-total">—</span>
+      </div>
+    </div>
     <div class="start-wrap">
       <button class="start-btn" onclick="startInterval()">Lancer</button>
     </div>
   </div>
-
-  <!-- ════════════ DÉGRESSIF ════════════ -->
   <div class="screen" id="screen-degressive">
     <div class="sec-title">Ajouter un palier</div>
     <div class="deg-add-card">
@@ -655,12 +702,21 @@ header {
     <div class="sec-title" style="margin-top:16px">Paliers programmés</div>
     <div class="deg-list" id="deg-list"></div>
 
+    <div class="summary-card" id="summary-degressive">
+      <div class="summary-item">
+        <span class="summary-lbl">Exercice total</span>
+        <span class="summary-val" id="sum-d-exo">—</span>
+      </div>
+      <div class="summary-sep"></div>
+      <div class="summary-item">
+        <span class="summary-lbl">Durée totale</span>
+        <span class="summary-val" id="sum-d-total">—</span>
+      </div>
+    </div>
     <div class="start-wrap">
       <button class="start-btn" onclick="startDegressive()">Lancer</button>
     </div>
   </div>
-
-  <!-- ════════════ CHRONO ════════════ -->
   <div class="screen" id="screen-chrono">
     <div class="sec-title">Configuration</div>
     <div class="config-card">
@@ -690,9 +746,9 @@ header {
     <div class="t-phase" id="t-phase">Exercice</div>
 
     <div class="ring-wrap">
-      <svg class="ring-svg" viewBox="0 0 220 220">
-        <circle class="ring-track" cx="110" cy="110" r="100"/>
-        <circle class="ring-fill" id="ring-fill" cx="110" cy="110" r="100"/>
+      <svg class="ring-svg" viewBox="0 0 280 280">
+        <circle class="ring-track" cx="140" cy="140" r="130"/>
+        <circle class="ring-fill" id="ring-fill" cx="140" cy="140" r="130"/>
       </svg>
       <div class="ring-center">
         <div class="ring-time" id="ring-time">00:00</div>
@@ -759,7 +815,7 @@ let currentMode = null;
 let phases = [], phaseIdx = 0, phaseRemaining = 0, phaseDuration = 0;
 let chronoElapsed = 0, chronoCap = 0;
 
-const CIRC = 628.3;
+const CIRC = 816.8;
 
 // ══════════════════════════════════════════════
 //  AUDIO
@@ -850,6 +906,7 @@ function adj(key, delta) {
   const [mn, mx] = limits[key];
   vals[key] = Math.min(mx, Math.max(mn, vals[key] + delta));
   renderVal(key);
+  updateSummaryInterval();
 }
 
 function renderVal(key) {
@@ -858,7 +915,7 @@ function renderVal(key) {
   el.value = key === 'i_reps' ? String(vals[key]) : fmt(vals[key]);
 }
 
-function renderAll() { Object.keys(vals).forEach(renderVal); }
+function renderAll() { Object.keys(vals).forEach(renderVal); updateSummaryInterval(); }
 
 // Parse typed value: "1:30" | "130" | "90" | "300"
 function parseTimeInput(raw) {
@@ -881,6 +938,7 @@ function inputTime(key, el) {
     vals[key] = Math.min(mx, Math.max(mn, sec));
   }
   renderVal(key);
+  updateSummaryInterval();
 }
 
 function inputReps(key, el) {
@@ -890,6 +948,27 @@ function inputReps(key, el) {
     vals[key] = Math.min(mx, Math.max(mn, n));
   }
   renderVal(key);
+  updateSummaryInterval();
+}
+
+// ── SUMMARY CALCULATIONS ──
+function updateSummaryInterval() {
+  const exoTotal   = vals.i_exo * vals.i_reps;
+  const restTotal  = vals.i_rest * Math.max(0, vals.i_reps - 1);
+  document.getElementById('sum-i-exo').textContent   = fmt(exoTotal);
+  document.getElementById('sum-i-total').textContent = fmt(exoTotal + restTotal);
+}
+
+function updateSummaryDegressive() {
+  if (!degSteps.length) {
+    document.getElementById('sum-d-exo').textContent   = '—';
+    document.getElementById('sum-d-total').textContent = '—';
+    return;
+  }
+  const exoTotal   = degSteps.reduce((a, s) => a + s.exo, 0);
+  const restTotal  = degSteps.reduce((a, s) => a + s.rest, 0);
+  document.getElementById('sum-d-exo').textContent   = fmt(exoTotal);
+  document.getElementById('sum-d-total').textContent = fmt(exoTotal + restTotal);
 }
 
 // ══════════════════════════════════════════════
@@ -929,6 +1008,7 @@ function renderDegList() {
   const el = document.getElementById('deg-list');
   if (!degSteps.length) {
     el.innerHTML = '<div class="deg-empty">Aucun palier — ajoutez-en ci-dessus</div>';
+    updateSummaryDegressive();
     return;
   }
   el.innerHTML = degSteps.map((s,i) => `
@@ -938,6 +1018,7 @@ function renderDegList() {
       <button class="deg-del" onclick="removeDeg(${i})">✕</button>
     </div>
   `).join('');
+  updateSummaryDegressive();
 }
 
 // ══════════════════════════════════════════════
@@ -1052,8 +1133,11 @@ function startChrono() {
 }
 
 // ══════════════════════════════════════════════
-//  PHASES ENGINE
+//  PHASES ENGINE  (rAF pour anneau fluide)
 // ══════════════════════════════════════════════
+let phaseStartTs = null;   // timestamp du début de la phase courante
+let rafId = null;          // requestAnimationFrame handle
+
 function launchPhases() {
   phaseIdx = 0;
   isPaused = false;
@@ -1061,57 +1145,98 @@ function launchPhases() {
   setStatus('active', 'ACTIF');
   startPhase();
 }
+
 function startPhase() {
   if (phaseIdx >= phases.length) { finishTimer(); return; }
   const p = phases[phaseIdx];
   phaseRemaining = p.dur;
-  phaseDuration = p.dur;
+  phaseDuration  = p.dur;
+  phaseStartTs   = null;   // sera initialisé au 1er frame
+
   if (phaseIdx === 0) soundPhaseStart();
   else soundTransition(p.type === 'rest');
-  updatePhaseUI();
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(tickPhase, 1000);
+
+  updatePhaseUI(p.dur);  // affichage immédiat
+
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(rafPhase);
 }
-function tickPhase() {
-  if (isPaused) return;
-  phaseRemaining--;
-  updatePhaseUI();
-  if (phaseRemaining <= 3 && phaseRemaining > 0) soundWarn();
-  if (phaseRemaining <= 0) {
-    clearInterval(timerInterval); timerInterval = null;
+
+function rafPhase(ts) {
+  if (isPaused) { rafId = requestAnimationFrame(rafPhase); return; }
+
+  if (phaseStartTs === null) {
+    // Calcule un startTs fictif pour repartir depuis le bon endroit
+    const offset = _phaseResumeOffset > 0 ? _phaseResumeOffset : phases[phaseIdx].dur;
+    phaseStartTs = ts - (phases[phaseIdx].dur - offset) * 1000;
+    _phaseResumeOffset = 0;
+  }
+
+  const elapsed   = (ts - phaseStartTs) / 1000;
+  const p         = phases[phaseIdx];
+  const remaining = Math.max(0, p.dur - elapsed);
+
+  // Mise à jour anneau — continu
+  const fill = document.getElementById('ring-fill');
+  fill.style.strokeDashoffset = CIRC * (1 - remaining / p.dur);
+  fill.className = 'ring-fill' + (p.type === 'rest' ? ' rest' : '');
+
+  // Mise à jour affichage secondes (seulement quand la seconde change)
+  const remRounded = Math.ceil(remaining);
+  if (remRounded !== phaseRemaining) {
+    phaseRemaining = remRounded;
+    updatePhaseUI(remaining);
+    // Sons d'alerte sur les 3 dernières secondes
+    if (phaseRemaining <= 3 && phaseRemaining > 0) soundWarn();
+  }
+
+  if (remaining <= 0) {
+    // Phase terminée
+    updatePhaseUI(0);
+    fill.style.strokeDashoffset = CIRC;
     phaseIdx++;
     setTimeout(startPhase, 200);
+    return;
   }
+
+  rafId = requestAnimationFrame(rafPhase);
 }
-function updatePhaseUI() {
-  const p = phases[phaseIdx] || phases[phaseIdx-1];
+
+function updatePhaseUI(remaining) {
+  const p = phases[phaseIdx] || phases[phaseIdx - 1];
   if (!p) return;
   const isRest = p.type === 'rest';
+
   const phaseEl = document.getElementById('t-phase');
   phaseEl.textContent = isRest ? '— Pause —' : `Exercice · Série ${p.serie}/${p.total}`;
   phaseEl.className = 't-phase' + (isRest ? ' rest' : '');
+
   const timeEl = document.getElementById('ring-time');
-  timeEl.textContent = fmt(phaseRemaining);
-  timeEl.className = 'ring-time' + (isRest ? ' rest' : '') + (phaseRemaining <= 5 && !isRest ? ' urgent' : '');
+  timeEl.textContent = fmt(Math.ceil(remaining));
+  timeEl.className = 'ring-time' + (isRest ? ' rest' : '') + (remaining <= 5 && !isRest ? ' urgent' : '');
+
   const nextP = phases[phaseIdx + 1];
   document.getElementById('ring-sub').textContent = nextP
     ? `prochain · ${nextP.type === 'rest' ? 'pause' : 'exercice'} ${fmt(nextP.dur)}`
     : 'dernière phase';
-  const fill = document.getElementById('ring-fill');
-  fill.style.strokeDashoffset = CIRC * (1 - (phaseDuration > 0 ? phaseRemaining / phaseDuration : 0));
-  fill.className = 'ring-fill' + (isRest ? ' rest' : '');
+
   document.getElementById('stat-serie').textContent = `${p.serie}/${p.total}`;
   document.getElementById('stat-next').textContent = nextP ? fmt(nextP.dur) : '--';
-  let totalLeft = phaseRemaining;
+  let totalLeft = Math.ceil(remaining);
   for (let i = phaseIdx + 1; i < phases.length; i++) totalLeft += phases[i].dur;
   document.getElementById('stat-total').textContent = fmt(totalLeft);
 }
 
 // ══════════════════════════════════════════════
-//  CHRONO ENGINE
+//  CHRONO ENGINE  (rAF pour anneau fluide)
 // ══════════════════════════════════════════════
+let chronoStartTs = null;
+let chronoPauseOffset = 0;
+
 function launchChrono() {
   isPaused = false;
+  chronoStartTs     = null;
+  chronoPauseOffset = 0;
   document.getElementById('btn-pause').textContent = '⏸ Pause';
   setStatus('active', 'ACTIF');
   document.getElementById('t-phase').textContent = 'Chrono';
@@ -1120,33 +1245,44 @@ function launchChrono() {
   document.getElementById('ring-fill').style.strokeDashoffset = '0';
   document.getElementById('ring-sub').textContent = '';
   document.getElementById('ring-time').className = 'ring-time';
-  if (timerInterval) clearInterval(timerInterval);
   soundPhaseStart();
-  timerInterval = setInterval(tickChrono, 1000);
+  if (rafId) cancelAnimationFrame(rafId);
+  rafId = requestAnimationFrame(rafChrono);
 }
-function tickChrono() {
-  if (isPaused) return;
-  chronoElapsed++;
+
+function rafChrono(ts) {
+  if (isPaused) { rafId = requestAnimationFrame(rafChrono); return; }
+  if (chronoStartTs === null) chronoStartTs = ts;
+
+  const elapsed = (ts - chronoStartTs) / 1000 + chronoPauseOffset;
+  chronoElapsed = elapsed;
+
   const timeEl = document.getElementById('ring-time');
-  const fill = document.getElementById('ring-fill');
-  const info = document.getElementById('chrono-info');
+  const fill   = document.getElementById('ring-fill');
+  const info   = document.getElementById('chrono-info');
+
   if (chronoCap > 0) {
-    const rem = chronoCap - chronoElapsed;
-    timeEl.textContent = fmt(rem);
+    const rem = Math.max(0, chronoCap - elapsed);
+    timeEl.textContent = fmt(Math.ceil(rem));
     fill.style.strokeDashoffset = CIRC * (1 - rem / chronoCap);
-    info.textContent = 'Écoulé · ' + fmt(chronoElapsed);
-    if (rem <= 10 && rem > 0) { soundWarn(); timeEl.className = 'ring-time urgent'; }
-    else { timeEl.className = 'ring-time'; }
+    info.textContent = 'Écoulé · ' + fmt(Math.floor(elapsed));
+
+    if (rem <= 10 && rem > 0) timeEl.className = 'ring-time urgent';
+    else timeEl.className = 'ring-time';
+
     if (rem <= 0) {
-      clearInterval(timerInterval); timerInterval = null;
       timeEl.textContent = 'TIME';
+      fill.style.strokeDashoffset = CIRC;
       finishTimer();
+      return;
     }
   } else {
-    timeEl.textContent = fmt(chronoElapsed);
-    fill.style.strokeDashoffset = CIRC * (1 - Math.min(1, chronoElapsed / 3600));
+    timeEl.textContent = fmt(Math.floor(elapsed));
+    fill.style.strokeDashoffset = CIRC * (1 - Math.min(1, elapsed / 3600));
     info.textContent = '';
   }
+
+  rafId = requestAnimationFrame(rafChrono);
 }
 
 // ══════════════════════════════════════════════
@@ -1155,16 +1291,48 @@ function tickChrono() {
 function togglePause() {
   isPaused = !isPaused;
   const btn = document.getElementById('btn-pause');
-  if (isPaused) { btn.textContent = '▶ Reprendre'; setStatus('paused', 'PAUSE'); }
-  else          { btn.textContent = '⏸ Pause';     setStatus('active', 'ACTIF'); soundTick(); }
+  if (isPaused) {
+    btn.textContent = '▶ Reprendre';
+    setStatus('paused', 'PAUSE');
+    // Mémorise le temps écoulé pour le chrono
+    if (currentMode === 'chrono') {
+      chronoPauseOffset = chronoElapsed;
+      chronoStartTs = null;
+    } else {
+      // Pour les phases, on mémorise le temps restant au moment de la pause
+      _pausedRemaining = phaseRemaining;
+    }
+  } else {
+    btn.textContent = '⏸ Pause';
+    setStatus('active', 'ACTIF');
+    soundTick();
+    // Repart depuis le temps restant
+    if (currentMode === 'chrono') {
+      chronoStartTs = null; // sera réinitialisé au prochain frame
+    } else {
+      phaseStartTs = null;  // réinitialise le timestamp de phase
+      // Recalcule un startTs fictif pour que "remaining" reparte de _pausedRemaining
+      _phaseResumeOffset = _pausedRemaining;
+    }
+  }
 }
+
+let _pausedRemaining = 0;
+let _phaseResumeOffset = 0;
+
 function stopTimer() {
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
   if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
   isPaused = false;
+  phaseStartTs = null;
+  chronoStartTs = null;
+  chronoPauseOffset = 0;
   document.getElementById('btn-pause').style.display = '';
   showConfigScreen();
 }
 function finishTimer() {
+  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
   setStatus('', 'FIN');
   soundFinished();
   const overlay = document.getElementById('finished-overlay');

@@ -260,13 +260,84 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
 
 /* ── LANDSCAPE ── */
 @media (orientation: landscape) {
-  #app { max-width: 100%; }
-  .tabs { padding: 0 20px 8px; }
-  .tab  { flex: 0 0 auto; padding: 6px 14px; }
-  header { padding: 8px 20px; }
-  .screen { overflow-y: auto; }
-  .start-wrap { padding: 10px 20px; }
-  #timer-screen { flex-direction: row; align-items: center; justify-content: center; padding: 8px 16px; gap: 0; width: 100%; }
+  #app { max-width: 100%; flex-direction: row; flex-wrap: wrap; height: 100dvh; overflow: hidden; }
+
+  /* Header full width */
+  header { width: 100%; flex-shrink: 0; padding: 6px 20px; }
+
+  /* Tabs + screens : colonne gauche scrollable */
+  .tabs {
+    display: flex;
+    padding: 0 16px 6px;
+    width: 100%;
+    flex-shrink: 0;
+  }
+  .tab { flex: 0 0 auto; padding: 5px 14px; font-size: 9px; }
+
+  /* Les screens prennent toute la hauteur restante et scrollent */
+  .screen {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 0;
+    min-height: 0;
+    width: 100%;
+  }
+
+  /* Layout 2 colonnes pour les screens de config */
+  .screen.active {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto;
+    align-content: start;
+    column-gap: 0;
+  }
+
+  /* Titre section — pleine largeur */
+  .sec-title { grid-column: 1 / -1; padding: 8px 16px 4px; }
+
+  /* Config card — colonne gauche */
+  .config-card { grid-column: 1; margin: 0 0 0 16px; }
+
+  /* Summary card — colonne gauche */
+  .summary-card { grid-column: 1; margin: 8px 0 0 16px; }
+
+  /* Preset section — colonne gauche */
+  .preset-section { grid-column: 1; padding: 4px 0 8px 16px; }
+
+  /* Bouton Lancer — colonne droite, centré verticalement */
+  .start-wrap {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    padding: 16px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    width: 140px;
+    flex-shrink: 0;
+  }
+  .start-btn {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    padding: 20px 14px;
+    width: 54px;
+    height: 100%;
+    border-radius: 14px;
+    font-size: 13px;
+    letter-spacing: 3px;
+  }
+
+  /* Degressive spécifique */
+  .deg-add-card { margin: 0 0 0 16px; grid-column: 1; }
+  .deg-list { padding: 0 0 0 16px; grid-column: 1; }
+
+  /* field-row plus compact */
+  .field-row { padding: 10px 14px; }
+  .field-label { font-size: 12px; }
+  .field-sub { font-size: 9px; }
+
+  /* Timer screen */
+  #timer-screen { flex-direction: row; align-items: center; justify-content: center; padding: 8px 16px; gap: 0; width: 100%; grid-column: 1 / -1; }
   #timer-screen > .t-phase { display: none; }
   .stats-row    { display: none !important; }
   .portrait-ctrl { display: none !important; }
@@ -274,9 +345,9 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
   .timer-left { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; width: 180px; flex-shrink: 0; padding-right: 20px; }
   .timer-right { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; width: 180px; flex-shrink: 0; padding-left: 20px; }
   .t-phase { text-align: right; margin-bottom: 0; min-height: auto; }
-  .ring-wrap { width: 260px; height: 260px; flex-shrink: 0; margin: 0; }
-  .ring-svg  { width: 260px; height: 260px; overflow: visible; }
-  .stat-card { padding: 8px 12px; min-width: 110px; }
+  .ring-wrap { width: 220px; height: 220px; flex-shrink: 0; margin: 0; }
+  .ring-svg  { width: 220px; height: 220px; overflow: visible; }
+  .stat-card { padding: 8px 12px; min-width: 100px; }
   .stat-val  { font-size: 18px; }
   .stat-card.serie-card .stat-val { font-size: 28px; }
   .ctrl-row { flex-direction: column; width: auto; gap: 8px; }

@@ -635,8 +635,7 @@ function setSkin(name) {
   document.getElementById('grad-stop2').setAttribute('stop-color', s.end);
   document.getElementById('skin-trigger').style.background =
     `linear-gradient(135deg, ${s.start}, ${s.end || s.start})`;
-  document.getElementById('custom-dot').style.background =
-    `linear-gradient(135deg, ${s.start}, ${s.end || s.start})`;
+  // custom-dot conserve toujours les couleurs du thème personnalisé — ne pas écraser
   document.querySelectorAll('.skin-option').forEach(d => d.classList.toggle('active', d.dataset.s === name));
   document.getElementById('skin-dropdown').classList.remove('open');
   try { localStorage.setItem('sporttimer_skin', name); } catch(e){}
@@ -644,11 +643,18 @@ function setSkin(name) {
 function loadSkin() {
   try {
     const s = localStorage.getItem('sporttimer_skin') || 'default';
+    // Toujours restaurer le custom-dot avec les couleurs sauvegardées
+    try {
+      const c = JSON.parse(localStorage.getItem('sporttimer_custom') || 'null');
+      if (c) {
+        document.getElementById('custom-dot').style.background =
+          `linear-gradient(135deg,${c.accent},${c.accent2})`;
+      }
+    } catch(e2) {}
     if (s === 'custom') {
       const c = JSON.parse(localStorage.getItem('sporttimer_custom') || 'null');
       if (c) {
         applyCustomVars(c.bg, c.accent, c.accent2);
-        // Restaurer le trigger dot couleur custom
         document.getElementById('skin-trigger').style.background =
           `linear-gradient(135deg,${c.accent},${c.accent2})`;
         return;

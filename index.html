@@ -13,8 +13,8 @@
 <script>
 (function(){
   const manifest = {
-    name: "Sport Timer", short_name: "Sport Timer",
-    description: "Fractionné, progressif et chrono timer",
+    name: "Sport Timer", short_name: "SportTimer",
+    description: "Interval, dégressif et chrono timer",
     start_url: ".", display: "standalone", orientation: "portrait",
     background_color: "#111214", theme_color: "#111214",
     icons: [{ src: "https://raw.githubusercontent.com/FolexMOG/FolexSportTimer/8313a780ddf8ebe710be54bc7d8e96912c979d3e/SportTimerIcon2.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }]
@@ -321,7 +321,7 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
 
   <header>
     <div class="header-left">
-      <img src="https://raw.githubusercontent.com/FolexMOG/FolexSportTimer/8313a780ddf8ebe710be54bc7d8e96912c979d3e/SportTimerIcon2.png" alt="Sport Timer" style="height:32px;width:auto;display:block;">
+      <img src="https://raw.githubusercontent.com/FolexMOG/FolexSportTimer/8313a780ddf8ebe710be54bc7d8e96912c979d3e/SportTimerIcon2.png" alt="Sport Timer" style="height:32px;width:32px;display:block;border-radius:7px;">
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
       <div class="status-pill" id="status-pill">
@@ -345,8 +345,8 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
   </header>
 
   <div class="tabs" id="tab-bar">
-    <button class="tab active" data-tab="interval">Fractionné</button>
-    <button class="tab" data-tab="degressive">Progressif</button>
+    <button class="tab active" data-tab="interval">Interval</button>
+    <button class="tab" data-tab="degressive">Dégressif</button>
     <button class="tab" data-tab="chrono">Chrono</button>
   </div>
 

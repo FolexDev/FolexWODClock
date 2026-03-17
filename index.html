@@ -161,8 +161,15 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
 .add-btn:active { background: var(--accent); color: var(--bg); }
 .deg-list { padding: 0 20px; display: flex; flex-direction: column; gap: 6px; }
 .deg-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; transition: opacity .15s, transform .15s; touch-action: none; user-select: none; }
-.deg-item.dragging { opacity: .4; transform: scale(.97); }
-.deg-item.drag-over { border-color: var(--accent); background: var(--accent-dim); }
+.deg-item.dragging { opacity: .35; transform: scale(.97); }
+.deg-drop-line {
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+  margin: 0 4px;
+  box-shadow: 0 0 6px var(--accent-glow);
+  pointer-events: none;
+}
 .deg-handle { color: var(--muted2); font-size: 18px; cursor: grab; padding: 0 2px; line-height: 1; flex-shrink: 0; touch-action: none; }
 .deg-handle:active { cursor: grabbing; }
 .deg-move { display: flex; flex-direction: column; gap: 1px; flex-shrink: 0; }
@@ -215,6 +222,28 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
 .start-wrap { padding: 16px 20px 8px; margin-top: auto; flex-shrink: 0; }
 .start-btn { width: 100%; padding: 17px; background: var(--accent); color: var(--bg); font-family: 'Bebas Neue', sans-serif; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; border: none; border-radius: 16px; cursor: pointer; box-shadow: 0 4px 24px var(--accent-glow); transition: all .12s; }
 .start-btn:active { transform: scale(.98); opacity: .85; }
+.bottom-bar {
+  flex-shrink: 0;
+  padding: 10px 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+}
+.countdown-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 0;
+}
+.countdown-lbl {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
 
 /* ── TIMER SCREEN ── */
 #timer-screen { display: none; flex-direction: column; align-items: center; flex: 1; padding: 16px 20px 20px; gap: 0; }
@@ -342,12 +371,6 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
           <button class="spin-btn" onclick="adj('i_reps',1)">+</button>
         </div>
       </div>
-      <div class="field-row">
-        <div class="toggle-row">
-          <button class="toggle on" id="countdown-toggle-interval" onclick="toggleCountdown()"></button>
-          <div><div class="toggle-label">Décompte</div><div class="field-sub">10 secondes avant départ</div></div>
-        </div>
-      </div>
     </div>
     <div class="summary-card" id="summary-interval">
       <div class="summary-item"><span class="summary-lbl">Exercice total</span><span class="summary-val" id="sum-i-exo">—</span></div>
@@ -360,7 +383,18 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
         <button class="preset-save-btn" onclick="openPresetModal('interval')">+ Sauvegarder</button>
       </div>
     </div>
-    <div class="start-wrap"><button class="start-btn" onclick="startInterval()">Lancer</button></div>
+    <div class="bottom-bar">
+      <div class="countdown-row">
+        <button class="toggle on" id="countdown-toggle-interval" onclick="toggleCountdown()"></button>
+        <span class="countdown-lbl">Décompte</span>
+        <div class="field-ctrl" id="cd-field-interval" style="margin-left:auto">
+          <button class="spin-btn" onclick="adj('cd_dur',-5)">−</button>
+          <input class="val-display cd-dur-input" type="text" inputmode="numeric" maxlength="3" onblur="inputCdDur(this)" onkeydown="if(event.key==='Enter')this.blur()">
+          <button class="spin-btn" onclick="adj('cd_dur',5)">+</button>
+        </div>
+      </div>
+      <button class="start-btn" onclick="startInterval()">Lancer</button>
+    </div>
   </div>
 
   <!-- DÉGRESSIF -->
@@ -378,6 +412,7 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
         <div class="deg-add-sep">Pause</div>
       </div>
       <button class="add-btn" onclick="addDegStep()">+ Ajouter ce palier</button>
+      <button class="add-btn" onclick="resetDegSteps()" style="margin-top:8px;background:var(--red-dim);border-color:rgba(248,113,113,.2);color:var(--red);">✕ Réinitialiser les paliers</button>
     </div>
     <div class="sec-title" style="margin-top:16px">Paliers programmés</div>
     <div class="deg-list" id="deg-list"></div>
@@ -386,21 +421,24 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
       <div class="summary-sep"></div>
       <div class="summary-item"><span class="summary-lbl">Durée totale</span><span class="summary-val" id="sum-d-total">—</span></div>
     </div>
-    <div class="config-card" style="margin:10px 20px 0;">
-      <div class="field-row">
-        <div class="toggle-row">
-          <button class="toggle on" id="countdown-toggle-degressive" onclick="toggleCountdown()"></button>
-          <div><div class="toggle-label">Décompte</div><div class="field-sub">10 secondes avant départ</div></div>
-        </div>
-      </div>
-    </div>
     <div class="preset-section">
       <div class="sec-title" style="padding:8px 0 4px">Presets</div>
       <div class="preset-bar" id="presets-degressive">
         <button class="preset-save-btn" onclick="openPresetModal('degressive')">+ Sauvegarder</button>
       </div>
     </div>
-    <div class="start-wrap"><button class="start-btn" onclick="startDegressive()">Lancer</button></div>
+    <div class="bottom-bar">
+      <div class="countdown-row">
+        <button class="toggle on" id="countdown-toggle-degressive" onclick="toggleCountdown()"></button>
+        <span class="countdown-lbl">Décompte</span>
+        <div class="field-ctrl" style="margin-left:auto">
+          <button class="spin-btn" onclick="adj('cd_dur',-5)">−</button>
+          <input class="val-display cd-dur-input" type="text" inputmode="numeric" maxlength="3" onblur="inputCdDur(this)" onkeydown="if(event.key==='Enter')this.blur()">
+          <button class="spin-btn" onclick="adj('cd_dur',5)">+</button>
+        </div>
+      </div>
+      <button class="start-btn" onclick="startDegressive()">Lancer</button>
+    </div>
   </div>
 
   <!-- CHRONO -->
@@ -418,12 +456,6 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
           <button class="spin-btn" onclick="adj('c_cap',30)">+</button>
         </div>
       </div>
-      <div class="field-row">
-        <div class="toggle-row">
-          <button class="toggle on" id="countdown-toggle-chrono" onclick="toggleCountdown()"></button>
-          <div><div class="toggle-label">Décompte</div><div class="field-sub">10 secondes avant départ</div></div>
-        </div>
-      </div>
     </div>
     <div class="preset-section">
       <div class="sec-title" style="padding:8px 0 4px">Presets</div>
@@ -431,7 +463,18 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
         <button class="preset-save-btn" onclick="openPresetModal('chrono')">+ Sauvegarder</button>
       </div>
     </div>
-    <div class="start-wrap"><button class="start-btn" onclick="startChrono()">Lancer</button></div>
+    <div class="bottom-bar">
+      <div class="countdown-row">
+        <button class="toggle on" id="countdown-toggle-chrono" onclick="toggleCountdown()"></button>
+        <span class="countdown-lbl">Décompte</span>
+        <div class="field-ctrl" style="margin-left:auto">
+          <button class="spin-btn" onclick="adj('cd_dur',-5)">−</button>
+          <input class="val-display cd-dur-input" type="text" inputmode="numeric" maxlength="3" onblur="inputCdDur(this)" onkeydown="if(event.key==='Enter')this.blur()">
+          <button class="spin-btn" onclick="adj('cd_dur',5)">+</button>
+        </div>
+      </div>
+      <button class="start-btn" onclick="startChrono()">Lancer</button>
+    </div>
   </div>
 
   <!-- TIMER SCREEN -->
@@ -700,8 +743,8 @@ function applyCustomSkin() {
 }
 
 // ══ CONFIG STATE ══
-const vals = { i_exo:180, i_rest:60, i_reps:5, d_exo:120, d_rest:60, c_cap:1200 };
-const limits = { i_exo:[10,3600], i_rest:[0,600], i_reps:[1,50], d_exo:[10,3600], d_rest:[0,600], c_cap:[60,7200] };
+const vals = { i_exo:180, i_rest:60, i_reps:5, d_exo:120, d_rest:60, c_cap:1200, cd_dur:10 };
+const limits = { i_exo:[10,3600], i_rest:[0,600], i_reps:[1,50], d_exo:[10,3600], d_rest:[0,600], c_cap:[60,7200], cd_dur:[3,60] };
 let degSteps = [], timecapOn = false, countdownOn = true, timerInterval = null, isPaused = false, currentMode = null;
 let phases = [], phaseIdx = 0, phaseRemaining = 0, phaseDuration = 0;
 let chronoElapsed = 0, chronoCap = 0;
@@ -767,7 +810,19 @@ function fmt(sec) { sec = Math.max(0, Math.round(sec)); return String(Math.floor
 
 // ══ CONTROLS ══
 function adj(key, delta) { const [mn,mx]=limits[key]; vals[key]=Math.min(mx,Math.max(mn,vals[key]+delta)); renderVal(key); updateSummaryInterval(); saveState(); }
-function renderVal(key) { const el=document.getElementById('disp-'+key); if(!el)return; el.value=key==='i_reps'?String(vals[key]):fmt(vals[key]); }
+function renderVal(key) {
+  if (key === 'cd_dur') {
+    document.querySelectorAll('.cd-dur-input').forEach(el => el.value = String(vals.cd_dur));
+    return;
+  }
+  const el=document.getElementById('disp-'+key); if(!el)return;
+  el.value=(key==='i_reps')?String(vals[key]):fmt(vals[key]);
+}
+function inputCdDur(el) {
+  const n = parseInt(el.value, 10);
+  if (!isNaN(n)) { const [mn,mx]=limits.cd_dur; vals.cd_dur=Math.min(mx,Math.max(mn,n)); }
+  renderVal('cd_dur'); saveState();
+}
 function renderAll() { Object.keys(vals).forEach(renderVal); updateSummaryInterval(); }
 function parseTimeInput(raw) {
   raw=(raw||'').trim().replace(/[^0-9:]/g,''); if(!raw)return null;
@@ -803,6 +858,7 @@ function toggleCountdown() {
 // ══ DEG STEPS ══
 function addDegStep() { degSteps.push({exo:vals.d_exo,rest:vals.d_rest}); renderDegList(); saveState(); }
 function removeDeg(i) { degSteps.splice(i,1); renderDegList(); saveState(); }
+function resetDegSteps() { degSteps = []; renderDegList(); saveState(); }
 function renderDegList() {
   const el=document.getElementById('deg-list');
   if(!degSteps.length){el.innerHTML='<div class="deg-empty">Aucun palier — ajoutez-en ci-dessus</div>';updateSummaryDegressive();return;}
@@ -817,20 +873,125 @@ function renderDegList() {
       </div>
       <button class="deg-del" onclick="removeDeg(${i})">✕</button>
     </div>`).join('');
-  updateSummaryDegressive(); initDragDrop();
+  updateSummaryDegressive();
 }
 function moveDeg(i,dir){const j=i+dir;if(j<0||j>=degSteps.length)return;[degSteps[i],degSteps[j]]=[degSteps[j],degSteps[i]];renderDegList();saveState();}
 let _dragIdx=null;
 function initDragDrop(){
-  document.querySelectorAll('.deg-item').forEach(item=>{
-    item.addEventListener('dragstart',e=>{_dragIdx=+item.dataset.idx;setTimeout(()=>item.classList.add('dragging'),0);});
-    item.addEventListener('dragend',()=>{item.classList.remove('dragging');document.querySelectorAll('.deg-item').forEach(it=>it.classList.remove('drag-over'));});
-    item.addEventListener('dragover',e=>{e.preventDefault();document.querySelectorAll('.deg-item').forEach(it=>it.classList.remove('drag-over'));item.classList.add('drag-over');});
-    item.addEventListener('drop',e=>{e.preventDefault();const t=+item.dataset.idx;if(_dragIdx!==null&&_dragIdx!==t){const m=degSteps.splice(_dragIdx,1)[0];degSteps.splice(t,0,m);renderDegList();saveState();}});
-    const handle=item.querySelector('.deg-handle');
-    handle.addEventListener('touchstart',e=>{_dragIdx=+item.dataset.idx;item.classList.add('dragging');},{passive:true});
-    handle.addEventListener('touchmove',e=>{e.preventDefault();const y=e.touches[0].clientY;const all=[...document.querySelectorAll('.deg-item')];all.forEach(it=>it.classList.remove('drag-over'));const tgt=all.find(it=>{const r=it.getBoundingClientRect();return y>=r.top&&y<=r.bottom;});if(tgt&&tgt!==item)tgt.classList.add('drag-over');},{passive:false});
-    handle.addEventListener('touchend',e=>{item.classList.remove('dragging');const all=[...document.querySelectorAll('.deg-item')];const tgt=all.find(it=>it.classList.contains('drag-over'));if(tgt){const ti=+tgt.dataset.idx;if(_dragIdx!==ti){const m=degSteps.splice(_dragIdx,1)[0];degSteps.splice(ti,0,m);renderDegList();saveState();return;}}all.forEach(it=>it.classList.remove('drag-over'));});
+  // NE FAIT PLUS RIEN — les events sont délégués une seule fois via setupDragDrop()
+}
+
+function setupDragDrop(){
+  const degList = document.getElementById('deg-list');
+
+  function removeDragLine() {
+    degList.querySelectorAll('.deg-drop-line').forEach(l=>l.remove());
+  }
+
+  function showDragLine(y) {
+    removeDragLine();
+    const items = [...degList.querySelectorAll('.deg-item:not(.dragging)')];
+    const line = document.createElement('div');
+    line.className = 'deg-drop-line';
+    let inserted = false;
+    for (const it of items) {
+      const r = it.getBoundingClientRect();
+      if (y < r.top + r.height / 2) {
+        degList.insertBefore(line, it);
+        inserted = true;
+        break;
+      }
+    }
+    if (!inserted) degList.appendChild(line);
+  }
+
+  function getDropIndex(y) {
+    // Index dans degSteps où insérer (après removal du dragged)
+    const items = [...degList.querySelectorAll('.deg-item:not(.dragging)')];
+    for (let i = 0; i < items.length; i++) {
+      const r = items[i].getBoundingClientRect();
+      if (y < r.top + r.height / 2) return +items[i].dataset.idx;
+    }
+    return degSteps.length;
+  }
+
+  function doInsert(insertIdx) {
+    if (_dragIdx === null || insertIdx === null) return;
+    // Ajuster l'index cible après la suppression de l'élément source
+    const realIdx = insertIdx > _dragIdx ? insertIdx - 1 : insertIdx;
+    if (realIdx === _dragIdx) return; // pas de changement
+    const m = degSteps.splice(_dragIdx, 1)[0];
+    degSteps.splice(realIdx, 0, m);
+    _dragIdx = null;
+    renderDegList(); saveState();
+  }
+
+  // ── DESKTOP drag events (délégués sur degList, une seule fois) ──
+  degList.addEventListener('dragover', e => {
+    e.preventDefault();
+    showDragLine(e.clientY);
+  });
+
+  degList.addEventListener('dragleave', e => {
+    // Ignorer si on entre dans un enfant (inclus la drag-line elle-même)
+    if (degList.contains(e.relatedTarget)) return;
+    removeDragLine();
+  });
+
+  degList.addEventListener('drop', e => {
+    e.preventDefault();
+    const insertIdx = getDropIndex(e.clientY);
+    removeDragLine();
+    doInsert(insertIdx);
+  });
+
+  // dragstart/dragend délégués aussi
+  degList.addEventListener('dragstart', e => {
+    const item = e.target.closest('.deg-item');
+    if (!item) return;
+    _dragIdx = +item.dataset.idx;
+    setTimeout(() => item.classList.add('dragging'), 0);
+  });
+
+  degList.addEventListener('dragend', e => {
+    const item = e.target.closest('.deg-item');
+    if (item) item.classList.remove('dragging');
+    removeDragLine();
+    _dragIdx = null;
+  });
+
+  // ── TOUCH events (délégués sur degList) ──
+  degList.addEventListener('touchstart', e => {
+    const handle = e.target.closest('.deg-handle');
+    if (!handle) return;
+    const item = handle.closest('.deg-item');
+    _dragIdx = +item.dataset.idx;
+    item.classList.add('dragging');
+  }, { passive: true });
+
+  degList.addEventListener('touchmove', e => {
+    if (_dragIdx === null) return;
+    e.preventDefault();
+    showDragLine(e.touches[0].clientY);
+  }, { passive: false });
+
+  degList.addEventListener('touchend', e => {
+    if (_dragIdx === null) return;
+    const item = degList.querySelector('.deg-item.dragging');
+    if (item) item.classList.remove('dragging');
+    const line = degList.querySelector('.deg-drop-line');
+    let insertIdx = degSteps.length;
+    if (line) {
+      const items = [...degList.querySelectorAll('.deg-item')];
+      for (let i = 0; i < items.length; i++) {
+        if (line.compareDocumentPosition(items[i]) & Node.DOCUMENT_POSITION_FOLLOWING) {
+          insertIdx = +items[i].dataset.idx;
+          break;
+        }
+      }
+    }
+    removeDragLine();
+    doInsert(insertIdx);
   });
 }
 
@@ -841,12 +1002,14 @@ function setStatus(state,label){const pill=document.getElementById('status-pill'
 function runCountdown(cb){
   const overlay=document.getElementById('countdown-overlay'),numEl=document.getElementById('cd-number'),lblEl=document.getElementById('cd-label');
   overlay.classList.add('active');setStatus('countdown','DÉPART');
-  let n=10;numEl.className='cd-number';numEl.textContent=n;lblEl.textContent='Prépare-toi';
+  let n=vals.cd_dur;
+  const beepFrom = Math.min(5, n);
+  numEl.className='cd-number';numEl.textContent=n;lblEl.textContent='Prépare-toi';
   const cd=setInterval(()=>{
     n--;
     if(n===0){clearInterval(cd);numEl.className='cd-number go-text';numEl.textContent='GO';lblEl.textContent='';soundGo();setTimeout(()=>{overlay.classList.remove('active');cb();},800);return;}
     numEl.style.animation='none';void numEl.offsetWidth;numEl.style.animation='cdPop .25s cubic-bezier(.2,1.6,.4,1)';
-    if(n<=5){numEl.className='cd-number beeping';lblEl.textContent='';soundTick();}else{numEl.className='cd-number';lblEl.textContent='Prépare-toi';}
+    if(n<=beepFrom){numEl.className='cd-number beeping';lblEl.textContent='';soundTick();}else{numEl.className='cd-number';lblEl.textContent='Prépare-toi';}
     numEl.textContent=n;
   },1000);
 }
@@ -995,6 +1158,7 @@ try {
   if (cd === '0') { countdownOn = false; ['interval','degressive','chrono'].forEach(m => { const el = document.getElementById('countdown-toggle-'+m); if(el) el.classList.remove('on'); }); }
 } catch(e) {}
 renderAll(); renderDegList(); renderAllPresets();
+setupDragDrop();
 
 ['touchstart','click','keydown'].forEach(ev=>document.addEventListener(ev,()=>{try{ctx();}catch(e){}},{once:true}));
 

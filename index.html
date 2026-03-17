@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="screen-orientation" content="portrait">
 <meta name="theme-color" content="#111214">
 <title>Sport Timer</title>
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/FolexMOG/FolexSportTimer/8313a780ddf8ebe710be54bc7d8e96912c979d3e/SportTimerIcon2.png">
@@ -12,9 +13,9 @@
 <script>
 (function(){
   const manifest = {
-    name: "Sport Timer", short_name: "Sport Timer",
+    name: "Sport Timer", short_name: "SportTimer",
     description: "Interval, dégressif et chrono timer",
-    start_url: ".", display: "standalone", orientation: "any",
+    start_url: ".", display: "standalone", orientation: "portrait",
     background_color: "#111214", theme_color: "#111214",
     icons: [{ src: "https://raw.githubusercontent.com/FolexMOG/FolexSportTimer/8313a780ddf8ebe710be54bc7d8e96912c979d3e/SportTimerIcon2.png", sizes: "512x512", type: "image/png", purpose: "any maskable" }]
   };
@@ -218,8 +219,8 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
 /* ── TIMER SCREEN ── */
 #timer-screen { display: none; flex-direction: column; align-items: center; flex: 1; padding: 16px 20px 20px; gap: 0; }
 #timer-screen.active { display: flex; }
-.timer-left  { display: none; }
-.timer-right { display: none; }
+.timer-left  { display: none !important; }
+.timer-right { display: none !important; }
 .portrait-ctrl { display: flex; gap: 10px; width: 100%; }
 .t-phase { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; transition: color .3s; min-height: 16px; }
 .t-phase.rest { color: var(--amber); }
@@ -259,100 +260,7 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
 .ctrl-btn.danger:active { background: var(--red); color: var(--bg); }
 
 /* ── LANDSCAPE ── */
-@media (orientation: landscape) {
-  #app { max-width: 100%; flex-direction: row; flex-wrap: wrap; height: 100dvh; overflow: hidden; }
 
-  /* Header full width */
-  header { width: 100%; flex-shrink: 0; padding: 6px 20px; }
-
-  /* Tabs + screens : colonne gauche scrollable */
-  .tabs {
-    display: flex;
-    padding: 0 16px 6px;
-    width: 100%;
-    flex-shrink: 0;
-  }
-  .tab { flex: 0 0 auto; padding: 5px 14px; font-size: 9px; }
-
-  /* Les screens prennent toute la hauteur restante et scrollent */
-  .screen {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-bottom: 0;
-    min-height: 0;
-    width: 100%;
-  }
-
-  /* Layout 2 colonnes pour les screens de config */
-  .screen.active {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto;
-    align-content: start;
-    column-gap: 0;
-  }
-
-  /* Titre section — pleine largeur */
-  .sec-title { grid-column: 1 / -1; padding: 8px 16px 4px; }
-
-  /* Config card — colonne gauche */
-  .config-card { grid-column: 1; margin: 0 0 0 16px; }
-
-  /* Summary card — colonne gauche */
-  .summary-card { grid-column: 1; margin: 8px 0 0 16px; }
-
-  /* Preset section — colonne gauche */
-  .preset-section { grid-column: 1; padding: 4px 0 8px 16px; }
-
-  /* Bouton Lancer — colonne droite, centré verticalement */
-  .start-wrap {
-    grid-column: 2;
-    grid-row: 1 / -1;
-    padding: 16px;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    width: 140px;
-    flex-shrink: 0;
-  }
-  .start-btn {
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    padding: 20px 14px;
-    width: 54px;
-    height: 100%;
-    border-radius: 14px;
-    font-size: 13px;
-    letter-spacing: 3px;
-  }
-
-  /* Degressive spécifique */
-  .deg-add-card { margin: 0 0 0 16px; grid-column: 1; }
-  .deg-list { padding: 0 0 0 16px; grid-column: 1; }
-
-  /* field-row plus compact */
-  .field-row { padding: 10px 14px; }
-  .field-label { font-size: 12px; }
-  .field-sub { font-size: 9px; }
-
-  /* Timer screen */
-  #timer-screen { flex-direction: row; align-items: center; justify-content: center; padding: 8px 16px; gap: 0; width: 100%; grid-column: 1 / -1; }
-  #timer-screen > .t-phase { display: none; }
-  .stats-row    { display: none !important; }
-  .portrait-ctrl { display: none !important; }
-  .chrono-info  { display: none !important; }
-  .timer-left { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; width: 180px; flex-shrink: 0; padding-right: 20px; }
-  .timer-right { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; width: 180px; flex-shrink: 0; padding-left: 20px; }
-  .t-phase { text-align: right; margin-bottom: 0; min-height: auto; }
-  .ring-wrap { width: 220px; height: 220px; flex-shrink: 0; margin: 0; }
-  .ring-svg  { width: 220px; height: 220px; overflow: visible; }
-  .stat-card { padding: 8px 12px; min-width: 100px; }
-  .stat-val  { font-size: 18px; }
-  .stat-card.serie-card .stat-val { font-size: 28px; }
-  .ctrl-row { flex-direction: column; width: auto; gap: 8px; }
-  .ctrl-btn { padding: 10px 16px; }
-}
 
 /* ── COUNTDOWN ── */
 #countdown-overlay { display: none; position: fixed; inset: 0; background: color-mix(in srgb, var(--bg) 96%, transparent); z-index: 200; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
@@ -509,10 +417,6 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
   <!-- TIMER SCREEN -->
   <div id="timer-screen">
     <div class="t-phase" id="t-phase">Exercice</div>
-    <div class="timer-left">
-      <div class="stat-card serie-card"><div class="stat-val" id="stat-serie">1/5</div><div class="stat-lbl">Série</div></div>
-      <div class="stat-card"><div class="stat-val" id="stat-next">01:00</div><div class="stat-lbl" id="stat-next-lbl">Prochain</div></div>
-    </div>
     <div class="ring-wrap">
       <svg class="ring-svg" viewBox="0 0 280 280">
         <defs>
@@ -539,13 +443,6 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
       <div class="stat-card"><div class="stat-val" id="stat-total-p">--</div><div class="stat-lbl">Restant</div></div>
     </div>
     <div class="chrono-info" id="chrono-info">00:00</div>
-    <div class="timer-right">
-      <div class="stat-card"><div class="stat-val" id="stat-total">--</div><div class="stat-lbl">Restant</div></div>
-      <div class="ctrl-row">
-        <button class="ctrl-btn danger" onclick="stopTimer()">■ Stop</button>
-        <button class="ctrl-btn primary" id="btn-pause" onclick="togglePause()">⏸ Pause</button>
-      </div>
-    </div>
     <div class="ctrl-row portrait-ctrl">
       <button class="ctrl-btn danger" onclick="stopTimer()">■ Stop</button>
       <button class="ctrl-btn primary" id="btn-pause-p" onclick="togglePause()">⏸ Pause</button>
@@ -925,15 +822,8 @@ function runCountdown(cb){
   },1000);
 }
 
-function lockPortrait() {
-  try { screen.orientation.lock('portrait').catch(()=>{}); } catch(e) {}
-}
-function unlockOrientation() {
-  try { screen.orientation.unlock(); } catch(e) {}
-}
-
-function showTimerScreen(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('timer-screen').classList.add('active');document.getElementById('tab-bar').style.display='none';unlockOrientation();}
-function showConfigScreen(){document.getElementById('timer-screen').classList.remove('active');document.getElementById('tab-bar').style.display='flex';const active=document.querySelector('.tab.active').dataset.tab;document.getElementById('screen-'+active).classList.add('active');setStatus('','PRÊT');lockPortrait();}
+function showTimerScreen(){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById('timer-screen').classList.add('active');document.getElementById('tab-bar').style.display='none';}
+function showConfigScreen(){document.getElementById('timer-screen').classList.remove('active');document.getElementById('tab-bar').style.display='flex';const active=document.querySelector('.tab.active').dataset.tab;document.getElementById('screen-'+active).classList.add('active');setStatus('','PRÊT');}
 
 // ══ BUILD PHASES ══
 function buildIntervalPhases(){const arr=[];for(let r=0;r<vals.i_reps;r++){arr.push({type:'exo',dur:vals.i_exo,serie:r+1,total:vals.i_reps});if(r<vals.i_reps-1&&vals.i_rest>0)arr.push({type:'rest',dur:vals.i_rest,serie:r+1,total:vals.i_reps});}return arr;}
@@ -972,14 +862,10 @@ function updatePhaseUI(remaining){
   const nextP=phases[phaseIdx+1];
   document.getElementById('ring-sub').textContent=nextP?`prochain · ${nextP.type==='rest'?'pause':'exercice'} ${fmt(nextP.dur)}`:'dernière phase';
   const nextVal=nextP?fmt(nextP.dur):'--',nextIsRest=nextP&&nextP.type==='rest',nextColor=nextIsRest?'var(--amber)':'var(--text)',nextLabel=nextIsRest?'Pause':(nextP?'Exercice':'Prochain');
-  const snEl=document.getElementById('stat-next');if(snEl){snEl.textContent=nextVal;snEl.style.color=nextColor;}
-  const snLbl=document.getElementById('stat-next-lbl');if(snLbl){snLbl.textContent=nextLabel;snLbl.style.color=nextIsRest?'var(--amber)':'';}
   const snElP=document.getElementById('stat-next-p');if(snElP){snElP.textContent=nextVal;snElP.style.color=nextColor;}
   const snLblP=document.getElementById('stat-next-lbl-p');if(snLblP){snLblP.textContent=nextLabel;snLblP.style.color=nextIsRest?'var(--amber)':'';}
-  const ssEl=document.getElementById('stat-serie');if(ssEl)ssEl.textContent=`${p.serie}/${p.total}`;
   const ssElP=document.getElementById('stat-serie-p');if(ssElP)ssElP.textContent=`${p.serie}/${p.total}`;
   let totalLeft=Math.ceil(remaining);for(let i=phaseIdx+1;i<phases.length;i++)totalLeft+=phases[i].dur;
-  const stEl=document.getElementById('stat-total');if(stEl)stEl.textContent=fmt(totalLeft);
   const stElP=document.getElementById('stat-total-p');if(stElP)stElP.textContent=fmt(totalLeft);
 }
 
@@ -1075,7 +961,7 @@ function loadState(){
 // ══ INIT ══
 loadState(); loadPresets(); loadSkin();
 renderAll(); renderDegList(); renderAllPresets();
-lockPortrait();
+
 ['touchstart','click','keydown'].forEach(ev=>document.addEventListener(ev,()=>{try{ctx();}catch(e){}},{once:true}));
 
 if('serviceWorker'in navigator){

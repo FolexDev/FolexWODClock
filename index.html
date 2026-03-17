@@ -160,7 +160,7 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
 .add-btn { width: 100%; padding: 10px; background: var(--accent-dim); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; color: var(--accent); font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all .12s; }
 .add-btn:active { background: var(--accent); color: var(--bg); }
 .deg-list { padding: 0 20px; display: flex; flex-direction: column; gap: 6px; }
-.deg-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; transition: opacity .15s, transform .15s; touch-action: none; user-select: none; }
+.deg-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; transition: opacity .15s, transform .15s; user-select: none; }
 .deg-item.dragging { opacity: .35; transform: scale(.97); }
 .deg-drop-line {
   height: 2px;
@@ -967,6 +967,7 @@ function setupDragDrop(){
     const item = handle.closest('.deg-item');
     _dragIdx = +item.dataset.idx;
     item.classList.add('dragging');
+    degList.style.touchAction = 'none'; // bloque scroll pendant le drag
   }, { passive: true });
 
   degList.addEventListener('touchmove', e => {
@@ -976,6 +977,7 @@ function setupDragDrop(){
   }, { passive: false });
 
   degList.addEventListener('touchend', e => {
+    degList.style.touchAction = ''; // restaure scroll
     if (_dragIdx === null) return;
     const item = degList.querySelector('.deg-item.dragging');
     if (item) item.classList.remove('dragging');

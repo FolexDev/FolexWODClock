@@ -1231,6 +1231,7 @@ document.querySelectorAll('.tab').forEach(btn => {
 (function() {
   const container = document.getElementById('swipe-container');
   let startX = 0, startY = 0, startIdx = 0, isDragging = false, isHoriz = null;
+  const MIN_MOVE = 12; // px minimum avant de considérer un swipe
 
   container.addEventListener('touchstart', e => {
     if (document.getElementById('timer-screen').classList.contains('active')) return;
@@ -1239,28 +1240,38 @@ document.querySelectorAll('.tab').forEach(btn => {
     startIdx = currentTabIdx;
     isDragging = true;
     isHoriz = null;
-    document.getElementById('swipe-track').style.transition = 'none';
+    // Ne pas couper la transition ici — seulement quand on sait que c'est horizontal
   }, { passive: true });
 
   container.addEventListener('touchmove', e => {
     if (!isDragging) return;
     const dx = e.touches[0].clientX - startX;
     const dy = e.touches[0].clientY - startY;
+
+    // Attendre un minimum de mouvement avant de trancher
     if (isHoriz === null) {
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < MIN_MOVE) return; // pas encore assez de mouvement
       isHoriz = Math.abs(dx) > Math.abs(dy);
+      if (isHoriz) {
+        // C'est un swipe horizontal — couper la transition maintenant
+        document.getElementById('swipe-track').style.transition = 'none';
+      }
     }
+
     if (!isHoriz) return; // scroll vertical — ne pas interférer
     e.preventDefault();
     const W = container.offsetWidth;
     const basePx = startIdx * W;
     const movePx = -dx;
-    const clampedPx = Math.max(0, Math.min(W * 2, basePx + movePx));
+    const clampedPx = Math.max(0, Math.min(W * (MODES.length - 1), basePx + movePx));
     document.getElementById('swipe-track').style.transform = 'translateX(-' + clampedPx + 'px)';
   }, { passive: false });
 
   container.addEventListener('touchend', e => {
-    if (!isDragging || !isHoriz) { isDragging = false; return; }
+    if (!isDragging) return;
     isDragging = false;
+    if (!isHoriz) return; // c'était un tap ou un scroll vertical — rien à faire
     const dx = e.changedTouches[0].clientX - startX;
     const threshold = container.offsetWidth * 0.25;
     if (dx < -threshold && startIdx < MODES.length - 1) switchTab(startIdx + 1);

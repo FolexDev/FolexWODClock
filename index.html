@@ -1190,18 +1190,18 @@ function confirmExportWOD() {
   const safeName = name.replace(/[^a-zA-Z0-9À-ÿ\s_-]/g, '').trim().replace(/\s+/g, '-') || 'WOD';
   const blob = new Blob([json], { type: 'application/json' });
   const file = new File([blob], `${safeName}.json`, { type: 'application/json' });
-  closeExportWOD();
 
-  // Essai partage avec fichier
   if (navigator.share) {
     navigator.share({ title: name, text: `WOD : ${name}`, files: [file] })
+      .then(() => { closeExportWOD(); })
       .catch(e => {
-        if (e.name === 'AbortError') return; // annulé volontairement
-        // Fichiers non supportés → essai sans fichier + téléchargement
-        navigator.share({ title: name, text: `WOD : ${name}\n\n${json}` })
-          .catch(() => downloadWOD(blob, safeName));
+        if (e.name === 'AbortError') { closeExportWOD(); return; }
+        // Fichiers non supportés → téléchargement
+        closeExportWOD();
+        downloadWOD(blob, safeName);
       });
   } else {
+    closeExportWOD();
     downloadWOD(blob, safeName);
   }
 }

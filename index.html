@@ -370,7 +370,7 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
 
   <div class="tabs" id="tab-bar">
     <button class="tab active" data-tab="interval">Fractionné</button>
-    <button class="tab" data-tab="degressive">Progressif</button>
+    <button class="tab" data-tab="degressive">AMRAP</button>
     <button class="tab" data-tab="fortime">For Time</button>
     <button class="tab" data-tab="chrono">Chrono</button>
   </div>
@@ -432,7 +432,7 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
     </div>
   </div>
 
-  <!-- DÉGRESSIF -->
+  <!-- AMRAP -->
   <div class="screen" id="screen-degressive">
     <div class="sec-title">Ajouter un palier <span style="color:var(--muted2)">(Exo / Pause)</span></div>
     <div class="deg-add-card">
@@ -605,33 +605,6 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
   </div>
 </div>
 
-<!-- FOR TIME EXPORT MODAL -->
-<div class="preset-modal-wrap" id="ft-export-modal">
-  <div class="preset-modal" style="width:300px;gap:14px;">
-    <div class="preset-modal-title">Exporter le WOD</div>
-    <input type="text" id="ft-export-name" maxlength="32" placeholder="Ex: Legs Day, HIIT Cardio..."
-      style="background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--text);outline:none;caret-color:var(--accent);width:100%;"
-      onkeydown="if(event.key==='Enter')confirmFTExport();">
-    <div class="preset-modal-btns">
-      <button onclick="document.getElementById('ft-export-modal').classList.remove('active')">Annuler</button>
-      <button class="pm-confirm" onclick="confirmFTExport()">↓ Télécharger</button>
-    </div>
-  </div>
-</div>
-
-<!-- FOR TIME IMPORT MODAL -->
-<input type="file" id="ft-import-file" accept=".json" style="display:none" onchange="handleFTImport(this)">
-<div class="preset-modal-wrap" id="ft-import-modal">
-  <div class="preset-modal" style="width:300px;gap:14px;">
-    <div class="preset-modal-title">Importer un WOD</div>
-    <div style="font-size:11px;color:var(--muted);letter-spacing:1px;line-height:1.6;">Sélectionne un fichier <strong style="color:var(--text)">.json</strong> exporté depuis Sport Timer</div>
-    <button class="add-btn" onclick="document.getElementById('ft-import-file').click()" style="font-size:13px;padding:14px;">Choisir un fichier</button>
-    <div id="ft-import-error" style="font-size:11px;color:var(--red);display:none;">Fichier invalide</div>
-    <div class="preset-modal-btns">
-      <button onclick="document.getElementById('ft-import-modal').classList.remove('active')">Annuler</button>
-    </div>
-  </div>
-</div>
 
   <!-- TIMER SCREEN -->
   <div id="timer-screen">
@@ -669,6 +642,34 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
   </div>
 
 </div><!-- /app -->
+
+<!-- FOR TIME EXPORT MODAL -->
+<div class="preset-modal-wrap" id="ft-export-modal">
+  <div class="preset-modal" style="width:300px;gap:14px;">
+    <div class="preset-modal-title">Exporter le WOD</div>
+    <input type="text" id="ft-export-name" maxlength="40" placeholder="For Time - Nom du WOD"
+      style="background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--text);outline:none;caret-color:var(--accent);width:100%;"
+      onkeydown="if(event.key==='Enter')confirmFTExport();">
+    <div class="preset-modal-btns">
+      <button onclick="document.getElementById('ft-export-modal').classList.remove('active')">Annuler</button>
+      <button class="pm-confirm" onclick="confirmFTExport()">↓ Télécharger</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOR TIME IMPORT MODAL -->
+<input type="file" id="ft-import-file" accept=".json" style="display:none" onchange="handleFTImport(this)">
+<div class="preset-modal-wrap" id="ft-import-modal">
+  <div class="preset-modal" style="width:300px;gap:14px;">
+    <div class="preset-modal-title">Importer un WOD</div>
+    <div style="font-size:11px;color:var(--muted);letter-spacing:1px;line-height:1.6;">Sélectionne un fichier <strong style="color:var(--text)">.json</strong> exporté depuis Sport Timer</div>
+    <button class="add-btn" onclick="document.getElementById('ft-import-file').click()" style="font-size:13px;padding:14px;">Choisir un fichier</button>
+    <div id="ft-import-error" style="font-size:11px;color:var(--red);display:none;">Fichier invalide</div>
+    <div class="preset-modal-btns">
+      <button onclick="document.getElementById('ft-import-modal').classList.remove('active')">Annuler</button>
+    </div>
+  </div>
+</div>
 
 <div class="preset-modal-wrap" id="preset-modal-wrap">
   <div class="preset-modal">
@@ -750,7 +751,7 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
   <div class="preset-modal" style="width:300px;gap:14px;">
     <div class="preset-modal-title">Exporter le WOD</div>
     <div style="font-size:11px;color:var(--muted);letter-spacing:1px;">Donne un nom à ce WOD</div>
-    <input type="text" id="dl-wod-name" maxlength="32" placeholder="Ex: Legs Day, HIIT Cardio..."
+    <input type="text" id="dl-wod-name" maxlength="40" placeholder="AMRAP - Nom du WOD"
       style="background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--text);outline:none;caret-color:var(--accent);width:100%;"
       onkeydown="if(event.key==='Enter')confirmExportDownload();">
     <div class="preset-modal-btns">
@@ -1283,9 +1284,10 @@ function resetDegSteps() { degSteps = []; renderDegList(); saveState(); }
 // ── EXPORT / IMPORT WOD ──
 function openExportWOD() {
   if (!degSteps.length) { alert('Aucun palier à exporter.'); return; }
-  document.getElementById('dl-wod-name').value = '';
+  const dlEl = document.getElementById('dl-wod-name');
+  dlEl.value = 'AMRAP - ';
   document.getElementById('dl-wod-modal').classList.add('active');
-  setTimeout(() => document.getElementById('dl-wod-name').focus(), 100);
+  setTimeout(() => { dlEl.focus(); dlEl.setSelectionRange(dlEl.value.length, dlEl.value.length); }, 100);
 }
 function buildWODData(name) {
   return {
@@ -1295,7 +1297,8 @@ function buildWODData(name) {
   };
 }
 function confirmExportDownload() {
-  const name = document.getElementById('dl-wod-name').value.trim() || 'WOD';
+  const rawName = document.getElementById('dl-wod-name').value.trim() || '';
+  const name = rawName.startsWith('AMRAP - ') ? rawName : 'AMRAP - ' + (rawName || 'WOD');
   const json = JSON.stringify(buildWODData(name), null, 2);
   const safeName = name.replace(/[^a-zA-Z0-9À-ÿ\s_-]/g,'').trim().replace(/\s+/g,'-') || 'WOD';
   const blob = new Blob([json], { type: 'application/json' });
@@ -1550,7 +1553,7 @@ function renderFTList() {
     list.innerHTML = '<div class="deg-empty">Aucun exercice — ajoutez-en ci-dessus</div>';
   } else {
     list.innerHTML = ftExercises.map((ex, i) => `
-      <div class="deg-item" data-idx="${i}">
+      <div class="deg-item" data-idx="${i}" draggable="true">
         <div class="deg-handle">⠿</div>
         <div class="deg-num">#${i+1}</div>
         <div style="flex:1;min-width:0;">
@@ -1590,15 +1593,109 @@ function loadFTState() {
   renderFTList();
 }
 
+function setupFTDragDrop() {
+  const list = document.getElementById('ft-list');
+  if (!list) return;
+  let _ftDragIdx = null;
+
+  function ftRemoveLine() { list.querySelectorAll('.deg-drop-line').forEach(l=>l.remove()); }
+
+  function ftShowLine(y) {
+    ftRemoveLine();
+    const items = [...list.querySelectorAll('.deg-item:not(.dragging)')];
+    const line = document.createElement('div');
+    line.className = 'deg-drop-line';
+    let inserted = false;
+    for (const it of items) {
+      const r = it.getBoundingClientRect();
+      if (y < r.top + r.height / 2) { list.insertBefore(line, it); inserted = true; break; }
+    }
+    if (!inserted) list.appendChild(line);
+  }
+
+  function ftDoInsert(insertIdx) {
+    if (_ftDragIdx === null || insertIdx === null) return;
+    const realIdx = insertIdx > _ftDragIdx ? insertIdx - 1 : insertIdx;
+    if (realIdx === _ftDragIdx) return;
+    const m = ftExercises.splice(_ftDragIdx, 1)[0];
+    ftExercises.splice(realIdx, 0, m);
+    _ftDragIdx = null;
+    renderFTList(); saveFTState();
+  }
+
+  function ftGetInsertIdx(y) {
+    const items = [...list.querySelectorAll('.deg-item:not(.dragging)')];
+    for (let i = 0; i < items.length; i++) {
+      const r = items[i].getBoundingClientRect();
+      if (y < r.top + r.height / 2) return +items[i].dataset.idx;
+    }
+    return ftExercises.length;
+  }
+
+  // Desktop drag
+  list.addEventListener('dragstart', e => {
+    const item = e.target.closest('.deg-item');
+    if (!item) return;
+    _ftDragIdx = +item.dataset.idx;
+    setTimeout(() => item.classList.add('dragging'), 0);
+  });
+  list.addEventListener('dragend', e => {
+    const item = e.target.closest('.deg-item');
+    if (item) item.classList.remove('dragging');
+    ftRemoveLine(); _ftDragIdx = null;
+  });
+  list.addEventListener('dragover', e => { e.preventDefault(); ftShowLine(e.clientY); });
+  list.addEventListener('dragleave', e => { if (!list.contains(e.relatedTarget)) ftRemoveLine(); });
+  list.addEventListener('drop', e => {
+    e.preventDefault();
+    const insertIdx = ftGetInsertIdx(e.clientY);
+    ftRemoveLine(); ftDoInsert(insertIdx);
+  });
+
+  // Touch
+  list.addEventListener('touchstart', e => {
+    const handle = e.target.closest('.deg-handle');
+    if (!handle) return;
+    const item = handle.closest('.deg-item');
+    _ftDragIdx = +item.dataset.idx;
+    item.classList.add('dragging');
+    list.style.touchAction = 'none';
+  }, { passive: true });
+  list.addEventListener('touchmove', e => {
+    if (_ftDragIdx === null) return;
+    e.preventDefault();
+    ftShowLine(e.touches[0].clientY);
+  }, { passive: false });
+  list.addEventListener('touchend', e => {
+    list.style.touchAction = '';
+    if (_ftDragIdx === null) return;
+    const item = list.querySelector('.deg-item.dragging');
+    if (item) item.classList.remove('dragging');
+    const line = list.querySelector('.deg-drop-line');
+    let insertIdx = ftExercises.length;
+    if (line) {
+      const items = [...list.querySelectorAll('.deg-item')];
+      for (let i = 0; i < items.length; i++) {
+        if (line.compareDocumentPosition(items[i]) & Node.DOCUMENT_POSITION_FOLLOWING) {
+          insertIdx = +items[i].dataset.idx; break;
+        }
+      }
+    }
+    ftRemoveLine(); ftDoInsert(insertIdx);
+  });
+}
+
 // ── EXPORT / IMPORT FOR TIME ──
 function openFTExport() {
   if (!ftExercises.length) { alert('Aucun exercice à exporter.'); return; }
-  document.getElementById('ft-export-name').value = '';
+  const ftEl = document.getElementById('ft-export-name');
+  ftEl.value = 'For Time - ';
   document.getElementById('ft-export-modal').classList.add('active');
-  setTimeout(() => document.getElementById('ft-export-name').focus(), 100);
+  setTimeout(() => { ftEl.focus(); ftEl.setSelectionRange(ftEl.value.length, ftEl.value.length); }, 100);
 }
 function confirmFTExport() {
-  const name = document.getElementById('ft-export-name').value.trim() || 'ForTime';
+  const rawName = document.getElementById('ft-export-name').value.trim() || '';
+  const name = rawName.startsWith('For Time - ') ? rawName : 'For Time - ' + (rawName || 'WOD');
   const wod = { app:'SportTimer', type:'fortime', v:1, name, date:new Date().toISOString().slice(0,10), rounds:ftVals.ft_rounds, exercises:ftExercises };
   const safeName = name.replace(/[^a-zA-Z0-9À-ÿ\s_-]/g,'').trim().replace(/\s+/g,'-') || 'ForTime';
   const blob = new Blob([JSON.stringify(wod,null,2)], {type:'application/json'});
@@ -1991,6 +2088,7 @@ renderAll(); renderDegList(); renderAllPresets();
 setupDragDrop();
 cpickBindEvents();
 loadFTState();
+setupFTDragDrop();
 
 ['touchstart','click','keydown'].forEach(ev=>document.addEventListener(ev,()=>{try{ctx();}catch(e){}},{once:true}));
 

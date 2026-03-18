@@ -178,6 +178,7 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
 
 /* ── DEGRESSIVE ── */
 .deg-add-card { margin: 0 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+.deg-name-field { width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;color:var(--text);outline:none;caret-color:var(--accent); }
 .deg-add-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 12px; }
 .deg-add-sep { font-size: 9px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; flex-shrink: 0; }
 .add-btn { width: 100%; padding: 10px; background: var(--accent-dim); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; color: var(--accent); font-family: 'Bebas Neue', sans-serif; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: all .12s; }
@@ -370,6 +371,7 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
   <div class="tabs" id="tab-bar">
     <button class="tab active" data-tab="interval">Fractionné</button>
     <button class="tab" data-tab="degressive">Progressif</button>
+    <button class="tab" data-tab="fortime">For Time</button>
     <button class="tab" data-tab="chrono">Chrono</button>
   </div>
 
@@ -482,6 +484,51 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
     </div>
   </div>
 
+
+  <!-- FOR TIME -->
+  <div class="screen" id="screen-fortime">
+    <div class="sec-title">Ajouter un exercice</div>
+    <div class="deg-add-card">
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);">
+        <button class="spin-btn" onclick="adjFT('ft_rounds',-1)">−</button>
+        <div style="text-align:center;">
+          <input class="val-display small" id="disp-ft_rounds" type="text" inputmode="numeric" maxlength="2"
+            onblur="inputFTRounds(this)" onkeydown="if(event.key==='Enter')this.blur()" style="color:var(--amber);">
+          <div style="font-size:8px;letter-spacing:1.5px;color:var(--muted);margin-top:2px;text-transform:uppercase;">Rounds</div>
+        </div>
+        <button class="spin-btn" onclick="adjFT('ft_rounds',1)">+</button>
+        <div style="font-size:9px;color:var(--muted2);letter-spacing:1px;margin-left:4px;" id="ft-rounds-hint"></div>
+      </div>
+      <input type="text" id="ft-name-input" maxlength="40" placeholder="Nom de l'exercice (ex: 20 Squats)"
+        class="deg-name-field"
+        onkeydown="if(event.key==='Enter')document.getElementById('ft-desc-input').focus()">
+      <input type="text" id="ft-desc-input" maxlength="60" placeholder="Description optionnelle..."
+        class="deg-name-field" style="margin-top:6px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0;"
+        onkeydown="if(event.key==='Enter')addFTExercise()">
+      <button class="add-btn" onclick="addFTExercise()" style="margin-top:8px;">+ Ajouter cet exercice</button>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:6px;">
+        <button class="add-btn" onclick="resetFTExercises()" style="flex:1;background:var(--red-dim);border-color:rgba(248,113,113,.2);color:var(--red);">✕ Réinitialiser</button>
+        <button onclick="openFTExport()" title="Exporter" style="width:36px;height:36px;flex-shrink:0;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">⬆</button>
+        <button onclick="openFTImport()" title="Importer" style="width:36px;height:36px;flex-shrink:0;background:var(--surface);border:1px solid var(--border2);border-radius:10px;color:var(--muted);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">⬇</button>
+      </div>
+    </div>
+
+    <div class="sec-title">Exercices — <span id="ft-count">0</span></div>
+    <div id="ft-list" style="display:flex;flex-direction:column;gap:5px;padding:0 20px;"></div>
+
+    <div class="summary-card" id="ft-summary">
+      <div class="summary-item"><span class="summary-lbl">Exercices</span><span class="summary-val" id="ft-sum-ex">—</span></div>
+      <div class="summary-sep"></div>
+      <div class="summary-item"><span class="summary-lbl">Rounds</span><span class="summary-val" id="ft-sum-rounds" style="color:var(--amber);">—</span></div>
+      <div class="summary-sep"></div>
+      <div class="summary-item"><span class="summary-lbl">Total</span><span class="summary-val" id="ft-sum-total">—</span></div>
+    </div>
+
+    <div class="bottom-bar">
+      <button class="start-btn" onclick="startForTime()">Lancer</button>
+    </div>
+  </div>
+
   <!-- CHRONO -->
   <div class="screen" id="screen-chrono">
     <div class="sec-title">Configuration</div>
@@ -519,6 +566,72 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
   </div>
   </div><!-- /swipe-track -->
   </div><!-- /swipe-container -->
+
+<!-- FOR TIME TIMER SCREEN -->
+<div id="ft-timer-screen" style="display:none;flex-direction:column;height:100%;background:var(--bg);">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;">
+    <div class="app-logo-wrap"><img src="https://raw.githubusercontent.com/FolexMOG/FolexSportTimer/8313a780ddf8ebe710be54bc7d8e96912c979d3e/SportTimerIcon2.png" style="height:32px;border-radius:8px;"></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="status-pill active" id="ft-status-pill"><div class="status-dot active"></div><span id="ft-status-text">ACTIF</span></div>
+    </div>
+  </div>
+
+  <!-- 3 stats -->
+  <div class="stats-row" id="ft-stats-row">
+    <div class="stat-card"><div class="stat-val" id="ft-stat-time" style="color:var(--accent);">00:00</div><div class="stat-lbl">Temps</div></div>
+    <div class="stat-card"><div class="stat-val" id="ft-stat-round" style="color:var(--amber);">1/1</div><div class="stat-lbl">Round</div></div>
+    <div class="stat-card"><div class="stat-val" id="ft-stat-ex" style="color:var(--text);">1/1</div><div class="stat-lbl">Exercice</div></div>
+  </div>
+
+  <!-- Current exercise -->
+  <div style="margin:4px 20px 6px;background:var(--accent-dim);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px 16px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);"></div>
+    <div style="font-size:8px;letter-spacing:3px;color:var(--accent);font-family:'Bebas Neue',sans-serif;margin-bottom:4px;">EN COURS</div>
+    <div id="ft-current-name" style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--text);letter-spacing:2px;line-height:1.1;"></div>
+    <div id="ft-current-desc" style="font-size:10px;color:var(--muted);margin-top:4px;"></div>
+  </div>
+
+  <!-- Validate button -->
+  <button id="ft-validate-btn" onclick="ftValidate()" style="margin:0 20px 8px;padding:15px;background:var(--accent);color:var(--bg);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;border-radius:14px;border:none;cursor:pointer;box-shadow:0 4px 20px var(--accent-glow);width:calc(100% - 40px);">✓  Validé — Suivant</button>
+
+  <!-- Exercise list -->
+  <div style="font-size:8px;letter-spacing:3px;color:var(--muted);font-family:'Bebas Neue',sans-serif;padding:2px 20px 4px;text-transform:uppercase;">Tous les exercices</div>
+  <div id="ft-active-list" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:3px;padding:0 20px;"></div>
+
+  <!-- Controls -->
+  <div style="border-top:1px solid var(--border);padding:10px 20px 14px;display:flex;gap:8px;flex-shrink:0;">
+    <button class="ctrl-btn danger" onclick="ftStop()">■ Stop</button>
+    <button class="ctrl-btn primary" id="ft-pause-btn" onclick="ftTogglePause()">⏸ Pause</button>
+  </div>
+</div>
+
+<!-- FOR TIME EXPORT MODAL -->
+<div class="preset-modal-wrap" id="ft-export-modal">
+  <div class="preset-modal" style="width:300px;gap:14px;">
+    <div class="preset-modal-title">Exporter le WOD</div>
+    <input type="text" id="ft-export-name" maxlength="32" placeholder="Ex: Legs Day, HIIT Cardio..."
+      style="background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:10px 14px;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--text);outline:none;caret-color:var(--accent);width:100%;"
+      onkeydown="if(event.key==='Enter')confirmFTExport();">
+    <div class="preset-modal-btns">
+      <button onclick="document.getElementById('ft-export-modal').classList.remove('active')">Annuler</button>
+      <button class="pm-confirm" onclick="confirmFTExport()">↓ Télécharger</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOR TIME IMPORT MODAL -->
+<input type="file" id="ft-import-file" accept=".json" style="display:none" onchange="handleFTImport(this)">
+<div class="preset-modal-wrap" id="ft-import-modal">
+  <div class="preset-modal" style="width:300px;gap:14px;">
+    <div class="preset-modal-title">Importer un WOD</div>
+    <div style="font-size:11px;color:var(--muted);letter-spacing:1px;line-height:1.6;">Sélectionne un fichier <strong style="color:var(--text)">.json</strong> exporté depuis Sport Timer</div>
+    <button class="add-btn" onclick="document.getElementById('ft-import-file').click()" style="font-size:13px;padding:14px;">Choisir un fichier</button>
+    <div id="ft-import-error" style="font-size:11px;color:var(--red);display:none;">Fichier invalide</div>
+    <div class="preset-modal-btns">
+      <button onclick="document.getElementById('ft-import-modal').classList.remove('active')">Annuler</button>
+    </div>
+  </div>
+</div>
 
   <!-- TIMER SCREEN -->
   <div id="timer-screen">
@@ -1083,7 +1196,7 @@ function updateSummaryInterval() { const e=vals.i_exo*vals.i_reps,r=vals.i_rest*
 function updateSummaryDegressive() { if(!degSteps.length){document.getElementById('sum-d-exo').textContent='—';document.getElementById('sum-d-total').textContent='—';return;} const e=degSteps.reduce((a,s)=>a+s.exo,0),r=degSteps.reduce((a,s)=>a+s.rest,0); document.getElementById('sum-d-exo').textContent=fmt(e); document.getElementById('sum-d-total').textContent=fmt(e+r); }
 
 // ══ TABS ══
-const MODES = ['interval','degressive','chrono'];
+const MODES = ['interval','degressive','fortime','chrono'];
 let currentTabIdx = 0;
 
 function switchTab(idx, animate=true) {
@@ -1387,6 +1500,254 @@ function setupDragDrop(){
   });
 }
 
+// ══ FOR TIME ══
+let ftExercises = [];
+let ftVals = { ft_rounds: 3 };
+let ftState = { round: 1, exIdx: 0, startTs: null, elapsed: 0, paused: false, pauseOffset: 0, rafId: null };
+
+function adjFT(key, delta) {
+  ftVals[key] = Math.max(1, Math.min(20, (ftVals[key] || 1) + delta));
+  renderFTVal(key);
+  updateFTHint();
+  saveFTState();
+}
+function renderFTVal(key) {
+  const el = document.getElementById('disp-ft_rounds');
+  if (el) el.value = String(ftVals.ft_rounds);
+}
+function inputFTRounds(el) {
+  const n = parseInt(el.value, 10);
+  if (!isNaN(n)) ftVals.ft_rounds = Math.max(1, Math.min(20, n));
+  renderFTVal('ft_rounds');
+  updateFTHint();
+  saveFTState();
+}
+function updateFTHint() {
+  const el = document.getElementById('ft-rounds-hint');
+  const total = ftVals.ft_rounds * ftExercises.length;
+  if (el) el.textContent = `× ${ftExercises.length} exercices = ${total} validation${total !== 1 ? 's' : ''}`;
+}
+function addFTExercise() {
+  const nameEl = document.getElementById('ft-name-input');
+  const descEl = document.getElementById('ft-desc-input');
+  const name = nameEl.value.trim();
+  if (!name) { nameEl.focus(); return; }
+  ftExercises.push({ name, desc: descEl.value.trim() });
+  nameEl.value = ''; descEl.value = '';
+  nameEl.focus();
+  renderFTList(); saveFTState();
+}
+function removeFTExercise(i) { ftExercises.splice(i, 1); renderFTList(); saveFTState(); }
+function moveFT(i, dir) { const j=i+dir; if(j<0||j>=ftExercises.length)return; [ftExercises[i],ftExercises[j]]=[ftExercises[j],ftExercises[i]]; renderFTList(); saveFTState(); }
+function resetFTExercises() { ftExercises = []; renderFTList(); saveFTState(); }
+
+function renderFTList() {
+  const list = document.getElementById('ft-list');
+  const countEl = document.getElementById('ft-count');
+  if (!list) return;
+  if (countEl) countEl.textContent = ftExercises.length;
+  if (!ftExercises.length) {
+    list.innerHTML = '<div class="deg-empty">Aucun exercice — ajoutez-en ci-dessus</div>';
+  } else {
+    list.innerHTML = ftExercises.map((ex, i) => `
+      <div class="deg-item" data-idx="${i}">
+        <div class="deg-handle">⠿</div>
+        <div class="deg-num">#${i+1}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--text);letter-spacing:1px;">${ex.name}</div>
+          ${ex.desc ? `<div style="font-size:9px;color:var(--muted);margin-top:1px;">${ex.desc}</div>` : ''}
+        </div>
+        <div class="deg-move">
+          <button class="deg-mv-btn" onclick="moveFT(${i},-1)" ${i===0?'style="opacity:.2;pointer-events:none"':''}>▲</button>
+          <button class="deg-mv-btn" onclick="moveFT(${i},+1)" ${i===ftExercises.length-1?'style="opacity:.2;pointer-events:none"':''}>▼</button>
+        </div>
+        <button class="deg-del" onclick="removeFTExercise(${i})">✕</button>
+      </div>`).join('');
+  }
+  // Summary
+  const s = ftExercises.length;
+  const r = ftVals.ft_rounds;
+  const total = s * r;
+  document.getElementById('ft-sum-ex') && (document.getElementById('ft-sum-ex').textContent = s || '—');
+  document.getElementById('ft-sum-rounds') && (document.getElementById('ft-sum-rounds').textContent = r || '—');
+  document.getElementById('ft-sum-total') && (document.getElementById('ft-sum-total').textContent = total || '—');
+  updateFTHint();
+}
+
+// ── SAVE / LOAD FOR TIME ──
+function saveFTState() {
+  try { localStorage.setItem('sporttimer_ft', JSON.stringify({ ftVals, ftExercises })); } catch(e) {}
+}
+function loadFTState() {
+  try {
+    const d = JSON.parse(localStorage.getItem('sporttimer_ft') || 'null');
+    if (d) {
+      if (d.ftVals) ftVals = { ...ftVals, ...d.ftVals };
+      if (d.ftExercises) ftExercises = d.ftExercises;
+    }
+  } catch(e) {}
+  renderFTVal('ft_rounds');
+  renderFTList();
+}
+
+// ── EXPORT / IMPORT FOR TIME ──
+function openFTExport() {
+  if (!ftExercises.length) { alert('Aucun exercice à exporter.'); return; }
+  document.getElementById('ft-export-name').value = '';
+  document.getElementById('ft-export-modal').classList.add('active');
+  setTimeout(() => document.getElementById('ft-export-name').focus(), 100);
+}
+function confirmFTExport() {
+  const name = document.getElementById('ft-export-name').value.trim() || 'ForTime';
+  const wod = { app:'SportTimer', type:'fortime', v:1, name, date:new Date().toISOString().slice(0,10), rounds:ftVals.ft_rounds, exercises:ftExercises };
+  const safeName = name.replace(/[^a-zA-Z0-9À-ÿ\s_-]/g,'').trim().replace(/\s+/g,'-') || 'ForTime';
+  const blob = new Blob([JSON.stringify(wod,null,2)], {type:'application/json'});
+  document.getElementById('ft-export-modal').classList.remove('active');
+  downloadWOD(blob, safeName, name);
+}
+function openFTImport() {
+  document.getElementById('ft-import-error').style.display = 'none';
+  document.getElementById('ft-import-file').value = '';
+  document.getElementById('ft-import-modal').classList.add('active');
+}
+function handleFTImport(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.exercises || !Array.isArray(data.exercises)) throw new Error();
+      ftExercises = data.exercises.filter(ex => ex.name);
+      if (data.rounds) ftVals.ft_rounds = data.rounds;
+      renderFTVal('ft_rounds');
+      renderFTList(); saveFTState();
+      document.getElementById('ft-import-modal').classList.remove('active');
+      showWodToast(`${ftExercises.length} exercice${ftExercises.length>1?'s':''} importé${ftExercises.length>1?'s':''} ✓`);
+    } catch(err) {
+      document.getElementById('ft-import-error').style.display = 'block';
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ── FOR TIME TIMER ──
+function startForTime() {
+  if (!ftExercises.length) { alert('Ajoutez au moins un exercice !'); return; }
+  ftState = { round:1, exIdx:0, startTs:null, elapsed:0, paused:false, pauseOffset:0, rafId:null };
+  acquireWakeLock();
+  showFTTimerScreen();
+  renderFTActiveList();
+  renderFTCurrentEx();
+  ftState.startTs = performance.now();
+  ftState.rafId = requestAnimationFrame(ftRaf);
+}
+
+function ftRaf(ts) {
+  if (ftState.paused) return;
+  if (ftState.startTs === null) ftState.startTs = ts;
+  ftState.elapsed = (ts - ftState.startTs + ftState.pauseOffset) / 1000;
+  document.getElementById('ft-stat-time').textContent = fmt(Math.floor(ftState.elapsed));
+  ftState.rafId = requestAnimationFrame(ftRaf);
+}
+
+function ftValidate() {
+  ftState.exIdx++;
+  if (ftState.exIdx >= ftExercises.length) {
+    ftState.exIdx = 0;
+    ftState.round++;
+    if (ftState.round > ftVals.ft_rounds) { ftFinished(); return; }
+  }
+  renderFTCurrentEx();
+  renderFTActiveList();
+}
+
+function renderFTCurrentEx() {
+  const ex = ftExercises[ftState.exIdx];
+  document.getElementById('ft-current-name').textContent = ex ? ex.name : '';
+  document.getElementById('ft-current-desc').textContent = ex ? (ex.desc || '') : '';
+  const total = ftExercises.length;
+  const rounds = ftVals.ft_rounds;
+  document.getElementById('ft-stat-round').textContent = `${ftState.round}/${rounds}`;
+  document.getElementById('ft-stat-ex').textContent = `${ftState.exIdx+1}/${total}`;
+}
+
+function renderFTActiveList() {
+  const list = document.getElementById('ft-active-list');
+  if (!list) return;
+  const totalDone = (ftState.round - 1) * ftExercises.length + ftState.exIdx;
+  list.innerHTML = ftExercises.map((ex, i) => {
+    const globalIdx = (ftState.round - 1) * ftExercises.length + i;
+    const isDone = globalIdx < totalDone;
+    const isCurrent = i === ftState.exIdx;
+    const style = isDone
+      ? `opacity:.4;`
+      : isCurrent
+      ? `background:var(--accent-dim);border:1px solid rgba(255,255,255,.1);border-radius:10px;`
+      : '';
+    const checkEl = isDone
+      ? `<div style="width:20px;height:20px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--bg);flex-shrink:0;">✓</div>`
+      : isCurrent
+      ? `<div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--accent);flex-shrink:0;"></div>`
+      : `<div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;"></div>`;
+    const nameColor = isDone ? 'var(--muted2)' : isCurrent ? 'var(--accent)' : 'var(--muted)';
+    const decoration = isDone ? 'text-decoration:line-through;' : '';
+    return `<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;${style}">
+      ${checkEl}
+      <span style="flex:1;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:${nameColor};${decoration}">${ex.name}</span>
+    </div>`;
+  }).join('');
+}
+
+function ftTogglePause() {
+  if (!ftState.paused) {
+    ftState.paused = true;
+    ftState.pauseOffset += performance.now() - ftState.startTs;
+    ftState.startTs = null;
+    if (ftState.rafId) cancelAnimationFrame(ftState.rafId);
+    document.getElementById('ft-pause-btn').textContent = '▶ Reprendre';
+  } else {
+    ftState.paused = false;
+    ftState.startTs = performance.now();
+    ftState.rafId = requestAnimationFrame(ftRaf);
+    document.getElementById('ft-pause-btn').textContent = '⏸ Pause';
+  }
+}
+
+function ftStop() {
+  if (ftState.rafId) cancelAnimationFrame(ftState.rafId);
+  releaseWakeLock();
+  hideFTTimerScreen();
+}
+
+function ftFinished() {
+  if (ftState.rafId) cancelAnimationFrame(ftState.rafId);
+  const elapsed = ftState.elapsed;
+  releaseWakeLock();
+  hideFTTimerScreen();
+  // Afficher overlay de fin
+  const ov = document.getElementById('finished-overlay');
+  document.getElementById('finished-sub').textContent = `For Time — ${fmt(Math.floor(elapsed))}`;
+  ov.classList.add('active');
+  setTimeout(() => ov.classList.remove('active'), 3500);
+}
+
+function showFTTimerScreen() {
+  document.getElementById('swipe-container').style.display = 'none';
+  document.getElementById('tab-bar').style.display = 'none';
+  document.getElementById('ft-timer-screen').style.display = 'flex';
+  document.getElementById('ft-timer-screen').style.flexDirection = 'column';
+  document.getElementById('ft-timer-screen').style.height = '100%';
+  setStatus('active', 'ACTIF');
+}
+
+function hideFTTimerScreen() {
+  document.getElementById('ft-timer-screen').style.display = 'none';
+  document.getElementById('swipe-container').style.display = '';
+  document.getElementById('tab-bar').style.display = 'flex';
+  switchTab(currentTabIdx, false);
+  setStatus('', 'PRÊT');
+}
+
 // ══ STATUS ══
 function setStatus(state,label){const pill=document.getElementById('status-pill');pill.className='status-pill'+(state?' '+state:'');document.getElementById('status-text').textContent=label;}
 
@@ -1629,6 +1990,7 @@ try {
 renderAll(); renderDegList(); renderAllPresets();
 setupDragDrop();
 cpickBindEvents();
+loadFTState();
 
 ['touchstart','click','keydown'].forEach(ev=>document.addEventListener(ev,()=>{try{ctx();}catch(e){}},{once:true}));
 

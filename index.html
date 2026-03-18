@@ -199,8 +199,8 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
 .deg-mv-btn { background: none; border: none; color: var(--muted2); font-size: 13px; cursor: pointer; padding: 0 2px; line-height: 1; }
 .deg-mv-btn:active { color: var(--accent); }
 .deg-num { font-family: 'Bebas Neue', sans-serif; font-size: 11px; color: var(--muted); min-width: 22px; }
-.deg-times { flex: 1; font-size: 13px; color: var(--text); }
-.deg-times em { color: var(--muted); font-style: normal; }
+.deg-times { flex: 1; font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 0; flex-wrap: wrap; gap: 4px; }
+.deg-name { font-size: 11px; color: var(--accent); letter-spacing: 1px; margin-left: 6px; }
 .deg-del { background: none; border: none; color: var(--muted2); font-size: 15px; cursor: pointer; padding: 0 2px; line-height: 1; }
 .deg-del:active { color: var(--red); }
 .deg-empty { text-align: center; font-size: 11px; color: var(--muted); padding: 20px; letter-spacing: 1px; }
@@ -438,11 +438,15 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
         <button class="spin-btn" onclick="adj('d_exo',-10)">−</button>
         <input class="val-display" id="disp-d_exo" type="text" inputmode="numeric" maxlength="5" style="font-size:15px;width:52px" onblur="inputTime('d_exo',this)" onkeydown="if(event.key==='Enter')this.blur()">
         <button class="spin-btn" onclick="adj('d_exo',10)">+</button>
-        <div class="deg-add-sep">Exo</div>
+        <span style="color:var(--muted2);font-size:14px;flex-shrink:0;">/</span>
         <button class="spin-btn" onclick="adj('d_rest',-5)">−</button>
         <input class="val-display" id="disp-d_rest" type="text" inputmode="numeric" maxlength="5" style="font-size:15px;width:52px" onblur="inputTime('d_rest',this)" onkeydown="if(event.key==='Enter')this.blur()">
         <button class="spin-btn" onclick="adj('d_rest',5)">+</button>
-        <div class="deg-add-sep">Pause</div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <input type="text" id="disp-d_name" maxlength="24" placeholder="Nom de l'exercice (optionnel)"
+          style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:var(--text);outline:none;caret-color:var(--accent);"
+          onkeydown="if(event.key==='Enter')this.blur()">
       </div>
       <button class="add-btn" onclick="addDegStep()">+ Ajouter ce palier</button>
       <button class="add-btn" onclick="resetDegSteps()" style="margin-top:8px;background:var(--red-dim);border-color:rgba(248,113,113,.2);color:var(--red);">✕ Réinitialiser les paliers</button>
@@ -1118,7 +1122,13 @@ function toggleCountdown(mode) {
 }
 
 // ══ DEG STEPS ══
-function addDegStep() { degSteps.push({exo:vals.d_exo,rest:vals.d_rest}); renderDegList(); saveState(); }
+function addDegStep() {
+  const nameEl = document.getElementById('disp-d_name');
+  const name = nameEl ? nameEl.value.trim() : '';
+  degSteps.push({exo:vals.d_exo, rest:vals.d_rest, name});
+  if (nameEl) nameEl.value = '';
+  renderDegList(); saveState();
+}
 function removeDeg(i) { degSteps.splice(i,1); renderDegList(); saveState(); }
 function resetDegSteps() { degSteps = []; renderDegList(); saveState(); }
 function renderDegList() {
@@ -1128,7 +1138,12 @@ function renderDegList() {
     <div class="deg-item" data-idx="${i}" draggable="true">
       <div class="deg-handle" title="Glisser pour réordonner">⠿</div>
       <div class="deg-num">#${i+1}</div>
-      <div class="deg-times">${fmt(s.exo)} <em>exo</em> · ${fmt(s.rest)} <em>pause</em></div>
+      <div class="deg-times">
+        <span>${fmt(s.exo)}</span>
+        <span style="color:var(--muted2);margin:0 3px">/</span>
+        <span style="color:var(--muted)">${fmt(s.rest)}</span>
+        ${s.name ? `<span class="deg-name">${s.name}</span>` : ''}
+      </div>
       <div class="deg-move">
         <button class="deg-mv-btn" onclick="moveDeg(${i},-1)" ${i===0?'style="opacity:.2;pointer-events:none"':''}>▲</button>
         <button class="deg-mv-btn" onclick="moveDeg(${i},+1)" ${i===degSteps.length-1?'style="opacity:.2;pointer-events:none"':''}>▼</button>
@@ -1330,7 +1345,7 @@ function showConfigScreen(){
 
 // ══ BUILD PHASES ══
 function buildIntervalPhases(){const arr=[];for(let r=0;r<vals.i_reps;r++){arr.push({type:'exo',dur:vals.i_exo,serie:r+1,total:vals.i_reps});if(r<vals.i_reps-1&&vals.i_rest>0)arr.push({type:'rest',dur:vals.i_rest,serie:r+1,total:vals.i_reps});}return arr;}
-function buildDegressivePhases(){const arr=[];degSteps.forEach((s,i)=>{arr.push({type:'exo',dur:s.exo,serie:i+1,total:degSteps.length});if(i<degSteps.length-1&&s.rest>0)arr.push({type:'rest',dur:s.rest,serie:i+1,total:degSteps.length});});return arr;}
+function buildDegressivePhases(){const arr=[];degSteps.forEach((s,i)=>{arr.push({type:'exo',dur:s.exo,serie:i+1,total:degSteps.length,name:s.name||''});if(i<degSteps.length-1&&s.rest>0)arr.push({type:'rest',dur:s.rest,serie:i+1,total:degSteps.length,nextName:degSteps[i+1]?degSteps[i+1].name||'':'',name:s.name||''});});return arr;}
 
 function startInterval(){phases=buildIntervalPhases();if(!phases.length)return;currentMode='interval';document.getElementById('stats-row').style.display='flex';document.getElementById('chrono-info').style.display='none';acquireWakeLock();if(countdownOn.interval){runCountdown(()=>{showTimerScreen();launchPhases();});}else{showTimerScreen();launchPhases();}}
 function startDegressive(){if(!degSteps.length){alert('Ajoutez au moins un palier !');return;}phases=buildDegressivePhases();currentMode='degressive';document.getElementById('stats-row').style.display='flex';document.getElementById('chrono-info').style.display='none';acquireWakeLock();if(countdownOn.degressive){runCountdown(()=>{showTimerScreen();launchPhases();});}else{showTimerScreen();launchPhases();}}
@@ -1360,10 +1375,29 @@ function rafPhase(ts){
 function updatePhaseUI(remaining){
   const p=phases[phaseIdx]||phases[phaseIdx-1];if(!p)return;
   const isRest=p.type==='rest';
-  const phaseEl=document.getElementById('t-phase');phaseEl.textContent=isRest?'— Pause —':`Exercice · Série ${p.serie}/${p.total}`;phaseEl.className='t-phase'+(isRest?' rest':'');
-  const timeEl=document.getElementById('ring-time');timeEl.textContent=fmt(Math.ceil(remaining));timeEl.className='ring-time'+(isRest?' rest':'')+(remaining<=5&&!isRest?' urgent':'');
   const nextP=phases[phaseIdx+1];
-  document.getElementById('ring-sub').textContent=nextP?`prochain · ${nextP.type==='rest'?'pause':'exercice'} ${fmt(nextP.dur)}`:'dernière phase';
+  const phaseEl=document.getElementById('t-phase');
+  if (isRest) {
+    const nxtName = nextP && nextP.name ? nextP.name : '';
+    phaseEl.textContent = nxtName ? `— Pause — · ${nxtName}` : '— Pause —';
+  } else {
+    phaseEl.textContent = p.name ? `${p.name} · ${p.serie}/${p.total}` : `Exercice · Série ${p.serie}/${p.total}`;
+  }
+  phaseEl.className='t-phase'+(isRest?' rest':'');
+  const timeEl=document.getElementById('ring-time');timeEl.textContent=fmt(Math.ceil(remaining));timeEl.className='ring-time'+(isRest?' rest':'')+(remaining<=5&&!isRest?' urgent':'');
+  // Durant une pause en mode dégressif : afficher le nom du prochain exercice
+  let subText = '';
+  if (nextP) {
+    if (nextP.type === 'rest') {
+      subText = `prochain · pause ${fmt(nextP.dur)}`;
+    } else {
+      const nextName = nextP.name || '';
+      subText = nextName ? `prochain · ${nextName} ${fmt(nextP.dur)}` : `prochain · exercice ${fmt(nextP.dur)}`;
+    }
+  } else {
+    subText = 'dernière phase';
+  }
+  document.getElementById('ring-sub').textContent = subText;
   const nextVal=nextP?fmt(nextP.dur):'--',nextIsRest=nextP&&nextP.type==='rest',nextColor=nextIsRest?'var(--amber)':'var(--text)',nextLabel=nextIsRest?'Pause':(nextP?'Exercice':'Prochain');
   const snElP=document.getElementById('stat-next-p');if(snElP){snElP.textContent=nextVal;snElP.style.color=nextColor;}
   const snLblP=document.getElementById('stat-next-lbl-p');if(snLblP){snLblP.textContent=nextLabel;snLblP.style.color=nextIsRest?'var(--amber)':'';}
@@ -1486,7 +1520,17 @@ cpickBindEvents();
 ['touchstart','click','keydown'].forEach(ev=>document.addEventListener(ev,()=>{try{ctx();}catch(e){}},{once:true}));
 
 if('serviceWorker'in navigator){
-  const swCode=`const CACHE='sport-timer-v1';self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(clients.claim());});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));});`;
+  const swCode=`
+    self.addEventListener('install',e=>{self.skipWaiting();});
+    self.addEventListener('activate',e=>{
+      // Supprimer tous les anciens caches
+      e.waitUntil(caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).then(()=>clients.claim()));
+    });
+    self.addEventListener('fetch',e=>{
+      // Network-first : toujours chercher la dernière version en ligne
+      e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));
+    });
+  `;
   const swBlob=new Blob([swCode],{type:'application/javascript'});const swUrl=URL.createObjectURL(swBlob);
   navigator.serviceWorker.register(swUrl,{scope:'/'}).catch(()=>{navigator.serviceWorker.register(swUrl).catch(()=>{});});
 }

@@ -1177,7 +1177,7 @@ function exportWOD() {
 function closeExportWOD() {
   document.getElementById('export-wod-modal').classList.remove('active');
 }
-async function confirmExportWOD() {
+function confirmExportWOD() {
   const name = document.getElementById('export-wod-name').value.trim() || 'WOD';
   const wod = {
     app: 'SportTimer',
@@ -1187,37 +1187,31 @@ async function confirmExportWOD() {
     steps: degSteps.map(s => ({ exo: s.exo, rest: s.rest, name: s.name || '' }))
   };
   const json = JSON.stringify(wod, null, 2);
+  const safeName = name.replace(/[^a-zA-Z0-9À-ÿ\s_-]/g, '').trim().replace(/\s+/g, '-') || 'WOD';
   const blob = new Blob([json], { type: 'application/json' });
-  const safeName = name.replace(/[^a-zA-Z0-9À-ÿ\s_-]/g, '').trim().replace(/\s+/g, '-');
   const file = new File([blob], `${safeName}.json`, { type: 'application/json' });
   closeExportWOD();
 
-  // Web Share API — partage natif (WhatsApp, iMessage, Mail, AirDrop...)
+  // Essai partage avec fichier
   if (navigator.share) {
-    try {
-      await navigator.share({
-        title: name,
-        text: `WOD Sport Timer : ${name}`,
-        files: [file]
+    navigator.share({ title: name, text: `WOD : ${name}`, files: [file] })
+      .catch(e => {
+        if (e.name === 'AbortError') return; // annulé volontairement
+        // Fichiers non supportés → essai sans fichier + téléchargement
+        navigator.share({ title: name, text: `WOD : ${name}\n\n${json}` })
+          .catch(() => downloadWOD(blob, safeName));
       });
-    } catch(e) {
-      // Annulé ou fichiers non supportés → fallback téléchargement
-      if (e.name !== 'AbortError') {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = `${safeName}.json`; a.click();
-        URL.revokeObjectURL(url);
-        showWodToast(`"${name}" exporté ✓`);
-      }
-    }
   } else {
-    // Pas de Web Share API → téléchargement direct
-    const url = URL.createObjectURL(blob);
-    const a   = document.createElement('a');
-    a.href = url; a.download = `${safeName}.json`; a.click();
-    URL.revokeObjectURL(url);
-    showWodToast(`"${name}" exporté ✓`);
+    downloadWOD(blob, safeName);
   }
+}
+
+function downloadWOD(blob, safeName) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `${safeName}.json`; a.click();
+  URL.revokeObjectURL(url);
+  showWodToast('Fichier téléchargé ✓');
 }
 
 function openImportWOD() {

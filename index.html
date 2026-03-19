@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- WOD Clock © 2026 Folex — folex.dev@gmail.com -->
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -6,6 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="screen-orientation" content="portrait">
+<meta name="author" content="Folex">
 <meta name="theme-color" content="#111214" id="meta-theme-color">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>WOD Clock</title>
@@ -351,8 +353,9 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
 <div id="app">
 
   <header>
-    <div class="header-left">
+    <div class="header-left" title="WOD Clock © 2026 Folex">
       <img src="https://raw.githubusercontent.com/FolexMOG/FolexSportTimer/8313a780ddf8ebe710be54bc7d8e96912c979d3e/SportTimerIcon2.png" alt="Sport Timer" style="height:32px;width:32px;display:block;border-radius:7px;">
+      <span onclick="toggleFolexCard()" style="font-family:'Bebas Neue',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--muted2);cursor:pointer;">@FOLEX</span>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
       <div class="status-pill" id="status-pill">
@@ -537,7 +540,9 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
       </div>
     </div>
 
-    <div class="sec-title">Exercices — <span id="ft-count">0</span></div>
+    <div class="sec-title">Exercices — <span id="ft-count">0</span>
+      <button onclick="openFTLog()" style="background:none;border:none;color:var(--muted);font-size:11px;letter-spacing:1px;cursor:pointer;font-family:'Bebas Neue',sans-serif;">📋 Logs</button>
+    </div>
     <div id="ft-list" style="display:flex;flex-direction:column;gap:5px;padding:0 20px;"></div>
 
     <div class="summary-card" id="ft-summary">
@@ -697,6 +702,25 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
 
 </div><!-- /app -->
 
+<!-- FOLEX CARD -->
+<div id="folex-card" style="display:none;position:fixed;top:70px;left:20px;background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;z-index:400;min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,.4);">
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--accent);letter-spacing:2px;margin-bottom:6px;">WOD Clock</div>
+  <div style="font-size:11px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">© 2026 Folex</div>
+  <a href="mailto:folex.dev@gmail.com" style="font-size:11px;color:var(--text);letter-spacing:.5px;text-decoration:none;display:block;margin-bottom:10px;">folex.dev@gmail.com</a>
+  <button onclick="shareApp()" style="width:100%;padding:8px;background:var(--accent-dim);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:2px;cursor:pointer;">⬆ Partager l'app</button>
+</div>
+
+<!-- FOR TIME LOG MODAL -->
+<div class="preset-modal-wrap" id="ft-log-modal" style="align-items:stretch;padding:20px;">
+  <div class="preset-modal" style="width:100%;max-width:360px;max-height:80vh;gap:12px;overflow:hidden;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="preset-modal-title">Logs For Time</div>
+      <button onclick="document.getElementById('ft-log-modal').classList.remove('active')" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;">✕</button>
+    </div>
+    <div id="ft-log-content" style="overflow-y:auto;flex:1;"></div>
+  </div>
+</div>
+
 <!-- FOR TIME EXPORT MODAL -->
 <div class="preset-modal-wrap" id="ft-export-modal">
   <div class="preset-modal" style="width:300px;gap:14px;">
@@ -852,7 +876,10 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
   <div class="finished-title">Terminé !</div>
   <div class="finished-sub" id="finished-sub">Bien joué</div>
   <div id="finished-laps" style="display:none;width:100%;max-width:340px;margin-top:12px;display:flex;flex-direction:column;gap:5px;"></div>
-  <button id="finished-back-btn" onclick="finishedBack()" style="display:none;margin-top:20px;padding:14px 40px;background:var(--accent);color:var(--bg);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;border-radius:14px;border:none;cursor:pointer;">← Retour</button>
+  <div style="display:flex;gap:10px;margin-top:20px;" id="finished-btns">
+    <button id="finished-save-btn" onclick="saveFTResult()" style="display:none;padding:14px 20px;background:var(--surface);color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;border-radius:14px;border:1px solid var(--border2);cursor:pointer;">💾 Sauvegarder</button>
+    <button id="finished-back-btn" onclick="finishedBack()" style="display:none;padding:14px 30px;background:var(--accent);color:var(--bg);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:2px;border-radius:14px;border:none;cursor:pointer;">← Retour</button>
+  </div>
 </div>
 
 <script>
@@ -893,6 +920,31 @@ function updateThemeColor(color) {
 function getSkinBg(name) {
   const map = { default:'#111214', carbon:'#0e0e10', ice:'#080d14', white:'#f4f4f5', military:'#0d0f0a' };
   return map[name] || '#111214';
+}
+
+function shareApp() {
+  const url = 'https://folexdev.github.io/FolexWODClock/';
+  if (navigator.share) {
+    navigator.share({ title: 'WOD Clock', text: '💪 Timer sportif gratuit — Fractionné, AMRAP, For Time, Chrono', url })
+      .catch(() => {});
+  } else {
+    navigator.clipboard && navigator.clipboard.writeText(url).then(() => showWodToast('Lien copié ✓'));
+  }
+  document.getElementById('folex-card').style.display = 'none';
+}
+
+function toggleFolexCard() {
+  const card = document.getElementById('folex-card');
+  const isOpen = card.style.display !== 'none';
+  card.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) {
+    // Fermer en cliquant ailleurs
+    setTimeout(() => {
+      document.addEventListener('click', function close(e) {
+        if (!card.contains(e.target)) { card.style.display='none'; document.removeEventListener('click', close); }
+      });
+    }, 10);
+  }
 }
 
 function setSkin(name) {
@@ -1405,6 +1457,7 @@ function addDegStep() {
   if (descEl) descEl.value = '';
   renderDegList(); saveState();
 }
+function cloneDeg(i) { degSteps.splice(i+1, 0, {...degSteps[i]}); renderDegList(); saveState(); }
 function removeDeg(i) { degSteps.splice(i,1); renderDegList(); saveState(); }
 function resetDegSteps() { degSteps = []; renderDegList(); saveState(); }
 
@@ -1558,10 +1611,7 @@ function renderDegList() {
           ${s.desc ? `<span style="font-size:10px;color:var(--muted2);font-family:'Bebas Neue',sans-serif;letter-spacing:1px;"> · ${s.desc}</span>` : ''}
         </div>
       </div>
-      <div class="deg-move">
-        <button class="deg-mv-btn" onclick="moveDeg(${i},-1)" ${i===0?'style="opacity:.2;pointer-events:none"':''}>▲</button>
-        <button class="deg-mv-btn" onclick="moveDeg(${i},+1)" ${i===degSteps.length-1?'style="opacity:.2;pointer-events:none"':''}>▼</button>
-      </div>
+      <button class="deg-mv-btn" onclick="cloneDeg(${i})" title="Dupliquer" style="font-size:14px;padding:0 3px;">⧉</button>
       <button class="deg-del" onclick="removeDeg(${i})">✕</button>
     </div>`).join('');
   updateSummaryDegressive();
@@ -1753,6 +1803,7 @@ function addFTExercise() {
   nameEl.blur(); descEl.blur();
   renderFTList(); saveFTState();
 }
+function cloneFTExercise(i) { ftExercises.splice(i+1, 0, {...ftExercises[i]}); renderFTList(); saveFTState(); }
 function removeFTExercise(i) { ftExercises.splice(i, 1); renderFTList(); saveFTState(); }
 function moveFT(i, dir) { const j=i+dir; if(j<0||j>=ftExercises.length)return; [ftExercises[i],ftExercises[j]]=[ftExercises[j],ftExercises[i]]; renderFTList(); saveFTState(); }
 function resetFTExercises() { ftExercises = []; renderFTList(); saveFTState(); }
@@ -1772,10 +1823,7 @@ function renderFTList() {
         <div style="flex:1;min-width:0;">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--text);letter-spacing:1px;">${ex.name}${ex.desc ? `<span style="font-size:10px;color:var(--muted2);font-family:'Bebas Neue',sans-serif;letter-spacing:1px;"> · ${ex.desc}</span>` : ''}</div>
         </div>
-        <div class="deg-move">
-          <button class="deg-mv-btn" onclick="moveFT(${i},-1)" ${i===0?'style="opacity:.2;pointer-events:none"':''}>▲</button>
-          <button class="deg-mv-btn" onclick="moveFT(${i},+1)" ${i===ftExercises.length-1?'style="opacity:.2;pointer-events:none"':''}>▼</button>
-        </div>
+        <button class="deg-mv-btn" onclick="cloneFTExercise(${i})" title="Dupliquer" style="font-size:14px;padding:0 3px;">⧉</button>
         <button class="deg-del" onclick="removeFTExercise(${i})">✕</button>
       </div>`).join('');
   }
@@ -1950,7 +1998,7 @@ function handleFTImport(input) {
 // ── FOR TIME TIMER ──
 function startForTime() {
   if (!ftExercises.length) { alert('Ajoutez au moins un exercice !'); return; }
-  ftState = { round:1, exIdx:0, startTs:null, elapsed:0, paused:false, pauseOffset:0, rafId:null, validated:0 };
+  ftState = { round:1, exIdx:0, startTs:null, elapsed:0, paused:false, pauseOffset:0, rafId:null, validated:0, splits:[] };
   acquireWakeLock();
   // Init ring
   const fill = document.getElementById('ft-ring-fill');
@@ -2012,6 +2060,13 @@ function ftRaf(ts) {
 
 function ftValidate() {
   ftState.validated++;
+  // Enregistrer le split : round, exo, temps écoulé
+  ftState.splits.push({
+    round: ftState.round,
+    exIdx: ftState.exIdx,
+    name: ftExercises[ftState.exIdx] ? ftExercises[ftState.exIdx].name : '',
+    elapsed: ftState.elapsed
+  });
   ftState.exIdx++;
   if (ftState.exIdx >= ftExercises.length) {
     ftState.exIdx = 0;
@@ -2078,11 +2133,128 @@ function showFTFinishedOverlay(elapsed, completed) {
   hideFTTimerScreen();
   const label = completed ? 'For Time — Terminé !' : 'For Time — Arrêté';
   document.getElementById('finished-sub').textContent = label + ' · ' + fmt(Math.floor(elapsed));
-  document.getElementById('finished-laps').style.display = 'none';
+
+  // Splits regroupés par round
+  const lapsEl = document.getElementById('finished-laps');
   const backBtn = document.getElementById('finished-back-btn');
+  if (lapsEl && ftState.splits.length) {
+    // Grouper par round
+    const byRound = {};
+    ftState.splits.forEach(s => {
+      if (!byRound[s.round]) byRound[s.round] = [];
+      byRound[s.round].push(s);
+    });
+    let html = '';
+    Object.keys(byRound).sort((a,b) => +a - +b).forEach(r => {
+      html += `<div style="font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:2px;color:var(--muted);margin-top:8px;margin-bottom:3px;">ROUND ${r}</div>`;
+      let prevElapsed = 0;
+      // Calculer l'elapsed de début du round
+      if (+r > 1) {
+        const prevRoundSplits = byRound[+r - 1];
+        if (prevRoundSplits) prevElapsed = prevRoundSplits[prevRoundSplits.length-1].elapsed;
+      }
+      byRound[r].forEach((s, idx) => {
+        const split = idx === 0 ? s.elapsed - prevElapsed : s.elapsed - byRound[r][idx-1].elapsed;
+        html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:3px;">
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--text);letter-spacing:1px;">${s.name || 'Exercice '+(s.exIdx+1)}</span>
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--accent);">${fmt(split)}</span>
+        </div>`;
+      });
+      // Temps total du round
+      const roundTotal = byRound[r][byRound[r].length-1].elapsed - prevElapsed;
+      html += `<div style="text-align:right;font-family:'Bebas Neue',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:4px;">Total R${r} · ${fmt(roundTotal)}</div>`;
+    });
+    lapsEl.style.display = 'flex';
+    lapsEl.innerHTML = html;
+  } else if (lapsEl) {
+    lapsEl.style.display = 'none';
+  }
   if (backBtn) backBtn.style.display = '';
+  // Bouton sauvegarder uniquement pour For Time
+  const saveBtn = document.getElementById('finished-save-btn');
+  if (saveBtn) {
+    saveBtn.style.display = ftState.splits.length ? '' : 'none';
+    saveBtn.dataset.saved = '0';
+    saveBtn.textContent = '💾 Sauvegarder';
+  }
   document.getElementById('finished-overlay').classList.add('active');
   soundFinished();
+}
+
+function saveFTResult() {
+  const saveBtn = document.getElementById('finished-save-btn');
+  if (saveBtn && saveBtn.dataset.saved === '1') return;
+  const result = {
+    id: Date.now(),
+    date: new Date().toISOString(),
+    elapsed: ftState.elapsed,
+    completed: ftState.round > ftVals.ft_rounds,
+    rounds: ftVals.ft_rounds,
+    exercises: ftExercises.map(e => e.name),
+    splits: ftState.splits.map(s => ({ round:s.round, name:s.name, elapsed:s.elapsed }))
+  };
+  try {
+    const log = JSON.parse(localStorage.getItem('sporttimer_ft_log') || '[]');
+    log.unshift(result);
+    if (log.length > 50) log.pop(); // garder max 50 entrées
+    localStorage.setItem('sporttimer_ft_log', JSON.stringify(log));
+    if (saveBtn) { saveBtn.textContent = '✓ Sauvegardé'; saveBtn.dataset.saved = '1'; saveBtn.style.color = 'var(--accent)'; }
+  } catch(e) { alert('Erreur de sauvegarde'); }
+}
+
+function getFTLog() {
+  try { return JSON.parse(localStorage.getItem('sporttimer_ft_log') || '[]'); } catch(e) { return []; }
+}
+
+function openFTLog() {
+  const log = getFTLog();
+  const modal = document.getElementById('ft-log-modal');
+  const content = document.getElementById('ft-log-content');
+  if (!log.length) {
+    content.innerHTML = '<div style="color:var(--muted);font-size:12px;text-align:center;padding:20px;">Aucun résultat sauvegardé</div>';
+  } else {
+    content.innerHTML = log.map((r, ri) => {
+      const date = new Date(r.date);
+      const dateStr = date.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'2-digit' });
+      const timeStr = date.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+      const status = r.completed ? '✓' : '⏹';
+      // Splits par round
+      const byRound = {};
+      r.splits.forEach(s => { if(!byRound[s.round])byRound[s.round]=[]; byRound[s.round].push(s); });
+      let splitsHtml = '';
+      Object.keys(byRound).sort((a,b)=>+a-+b).forEach(rnd => {
+        splitsHtml += `<div style="font-size:9px;letter-spacing:1px;color:var(--muted);margin:5px 0 2px;">ROUND ${rnd}</div>`;
+        let prev = rnd > 1 ? (byRound[+rnd-1]||[]).slice(-1)[0]?.elapsed||0 : 0;
+        byRound[rnd].forEach((s, idx) => {
+          const split = idx===0 ? s.elapsed-prev : s.elapsed-byRound[rnd][idx-1].elapsed;
+          splitsHtml += `<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;">
+            <span style="color:var(--text);">${s.name}</span>
+            <span style="color:var(--accent);font-family:'Bebas Neue',sans-serif;">${fmt(split)}</span>
+          </div>`;
+        });
+      });
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--text);letter-spacing:1px;">${status} ${fmt(Math.floor(r.elapsed))}</div>
+            <div style="font-size:10px;color:var(--muted);">${dateStr} ${timeStr} · ${r.rounds} rounds</div>
+          </div>
+          <button onclick="deleteFTLog(${ri})" style="background:none;border:none;color:var(--muted2);font-size:14px;cursor:pointer;">✕</button>
+        </div>
+        ${splitsHtml}
+      </div>`;
+    }).join('');
+  }
+  modal.classList.add('active');
+}
+
+function deleteFTLog(idx) {
+  try {
+    const log = getFTLog();
+    log.splice(idx, 1);
+    localStorage.setItem('sporttimer_ft_log', JSON.stringify(log));
+    openFTLog();
+  } catch(e) {}
 }
 
 function ftStop() {
@@ -2339,6 +2511,8 @@ function stopTimer(){
       }
     }
     if (backBtn) backBtn.style.display = '';
+    const saveBtn = document.getElementById('finished-save-btn');
+    if (saveBtn) saveBtn.style.display = 'none';
     document.getElementById('finished-overlay').classList.add('active');
     // Ne pas fermer automatiquement — attendre le clic Retour
   } else {

@@ -1441,7 +1441,7 @@ function confirmShareWOD() {
 
   // Encoder le WOD en base64 dans un lien URL
   const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(wod))));
-  const baseUrl = 'https://folexmog.github.io/FolexSportTimer/';
+  const baseUrl = 'https://folexdev.github.io/FolexWODClock/';
   const shareUrl = `${baseUrl}?wod=${encoded}`;
 
   if (navigator.share) {

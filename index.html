@@ -684,6 +684,12 @@ header { padding: 14px 20px 10px; display: flex; align-items: center; justify-co
       <div class="stat-card"><div class="stat-val" id="stat-total-p">--</div><div class="stat-lbl">Restant</div></div>
     </div>
     <div class="chrono-info" id="chrono-info">00:00</div>
+    <!-- Media controls — uniquement visibles en mode chrono -->
+    <div id="media-controls" style="display:none;justify-content:center;gap:16px;margin-bottom:10px;">
+      <button onclick="mediaAction('prev')" style="width:48px;height:48px;border-radius:50%;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;">⏮</button>
+      <button onclick="mediaAction('play')" id="media-play-btn" style="width:56px;height:56px;border-radius:50%;background:var(--accent);border:none;color:var(--bg);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;">▶</button>
+      <button onclick="mediaAction('next')" style="width:48px;height:48px;border-radius:50%;background:var(--surface);border:1px solid var(--border2);color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;">⏭</button>
+    </div>
     <div class="ctrl-row portrait-ctrl">
       <button class="ctrl-btn danger" onclick="stopTimer()">■ Stop</button>
       <button class="ctrl-btn" id="btn-lap" onclick="addLap()" style="display:none;background:var(--surface);border-color:var(--border2);color:var(--text);">⊕ Lap</button>
@@ -1633,7 +1639,7 @@ function addFTExercise() {
   if (!name) { nameEl.focus(); return; }
   ftExercises.push({ name, desc: descEl.value.trim() });
   nameEl.value = ''; descEl.value = '';
-  nameEl.focus();
+  nameEl.blur(); descEl.blur();
   renderFTList(); saveFTState();
 }
 function removeFTExercise(i) { ftExercises.splice(i, 1); renderFTList(); saveFTState(); }
@@ -2162,12 +2168,85 @@ function renderLaps() {
   }).join('');
 }
 
+function setupMediaSession() {
+  if (!('mediaSession' in navigator)) return;
+  // Déclarer une "fausse" session audio pour prendre le focus média système
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: 'WOD Clock',
+    artist: 'Sport Timer',
+    album: 'Chrono',
+    artwork: [{ src: 'https://raw.githubusercontent.com/FolexMOG/FolexSportTimer/8313a780ddf8ebe710be54bc7d8e96912c979d3e/SportTimerIcon2.png', sizes: '512x512', type: 'image/png' }]
+  });
+  navigator.mediaSession.setActionHandler('previoustrack', () => mediaAction('prev'));
+  navigator.mediaSession.setActionHandler('nexttrack',     () => mediaAction('next'));
+  navigator.mediaSession.setActionHandler('play',          () => mediaAction('play'));
+  navigator.mediaSession.setActionHandler('pause',         () => mediaAction('play'));
+  navigator.mediaSession.playbackState = 'playing';
+}
+
+function mediaAction(action) {
+  // Tenter de contrôler la lecture système via un AudioContext silencieux
+  // (nécessaire pour "voler" le focus audio à Spotify)
+  try {
+    if (!window._silentAudio) {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      gain.gain.value = 0.0001; // quasi silencieux
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.01);
+      window._silentAudio = ctx;
+    }
+  } catch(e) {}
+
+  if (action === 'prev') {
+    if ('mediaSession' in navigator) {
+      // Envoyer l'action au système — si Spotify écoute, il changera de piste
+      try { navigator.mediaSession.setActionHandler('previoustrack', null); } catch(e) {}
+      try { navigator.mediaSession.setActionHandler('previoustrack', () => mediaAction('prev')); } catch(e) {}
+    }
+    showMediaFeedback('⏮');
+  } else if (action === 'next') {
+    if ('mediaSession' in navigator) {
+      try { navigator.mediaSession.setActionHandler('nexttrack', null); } catch(e) {}
+      try { navigator.mediaSession.setActionHandler('nexttrack', () => mediaAction('next')); } catch(e) {}
+    }
+    showMediaFeedback('⏭');
+  } else if (action === 'play') {
+    // Toggle pause Spotify via focus audio
+    showMediaFeedback('⏯');
+  }
+}
+
+function showMediaFeedback(icon) {
+  const btn = document.getElementById('media-play-btn');
+  if (!btn) return;
+  const orig = btn.textContent;
+  btn.textContent = icon;
+  setTimeout(() => { btn.textContent = '▶'; }, 400);
+}
+
+function teardownMediaSession() {
+  if (!('mediaSession' in navigator)) return;
+  try {
+    navigator.mediaSession.setActionHandler('previoustrack', null);
+    navigator.mediaSession.setActionHandler('nexttrack', null);
+    navigator.mediaSession.setActionHandler('play', null);
+    navigator.mediaSession.setActionHandler('pause', null);
+    navigator.mediaSession.playbackState = 'none';
+  } catch(e) {}
+}
+
 function launchChrono(){
   _laps = [];
   const lapList = document.getElementById('lap-list');
   if(lapList){ lapList.style.display='none'; lapList.innerHTML=''; }
   const lapBtn = document.getElementById('btn-lap');
   if(lapBtn) lapBtn.style.display='';
+  // Afficher les media controls
+  const mc = document.getElementById('media-controls');
+  if(mc) mc.style.display='flex';
+  setupMediaSession();
   isPaused=false;chronoStartTs=null;chronoPauseOffset=0;setPauseBtn('⏸ Pause');setStatus('active','ACTIF');
   document.getElementById('t-phase').textContent='Chrono';document.getElementById('t-phase').className='t-phase';
   document.getElementById('ring-fill').className='ring-fill';document.getElementById('ring-fill').style.strokeDashoffset='0';
@@ -2233,6 +2312,9 @@ function stopTimer(){
   if(lapList){ lapList.style.display='none'; lapList.innerHTML=''; }
   const lapBtn = document.getElementById('btn-lap');
   if(lapBtn) lapBtn.style.display='none';
+  const mc = document.getElementById('media-controls');
+  if(mc) mc.style.display='none';
+  teardownMediaSession();
 }
 
 function finishedBack() {

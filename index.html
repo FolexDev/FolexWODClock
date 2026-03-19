@@ -6,8 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="screen-orientation" content="portrait">
-<meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#111214" id="meta-theme-color">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>WOD Clock</title>
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/FolexMOG/FolexSportTimer/8313a780ddf8ebe710be54bc7d8e96912c979d3e/SportTimerIcon2.png">
 <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/FolexMOG/FolexSportTimer/8313a780ddf8ebe710be54bc7d8e96912c979d3e/SportTimerIcon2.png">
@@ -70,8 +70,8 @@ body[data-skin="military"] {
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html { background: var(--bg); }
-html, body { height: 100%; height: 100dvh; background: var(--bg); color: var(--text); font-family: 'Bebas Neue', sans-serif; overflow: hidden; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+html { background: var(--bg); height: 100%; }
+html, body { height: 100%; height: 100dvh; background: var(--bg); color: var(--text); font-family: 'Bebas Neue', sans-serif; overflow: hidden; margin: 0; padding: 0; }
 #app { display: flex; flex-direction: column; height: 100dvh; max-width: 420px; margin: 0 auto; position: relative; overflow: hidden; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
 
 /* ── HEADER ── */
@@ -858,13 +858,20 @@ document.addEventListener('click', e => {
 });
 
 function updateThemeColor(color) {
-  const meta = document.getElementById('meta-theme-color');
-  if (meta) meta.setAttribute('content', color);
-  // Essayer aussi via l'API navigator si disponible
-  try {
-    const metas = document.querySelectorAll('meta[name="theme-color"]');
-    metas.forEach(m => m.setAttribute('content', color));
-  } catch(e) {}
+  // Status bar (tous navigateurs)
+  document.querySelectorAll('meta[name="theme-color"]').forEach(m => m.setAttribute('content', color));
+  // Navigation bar Android — via une balise <meta> dédiée
+  let navMeta = document.getElementById('meta-nav-color');
+  if (!navMeta) {
+    navMeta = document.createElement('meta');
+    navMeta.name = 'theme-color';
+    navMeta.id = 'meta-nav-color';
+    document.head.appendChild(navMeta);
+  }
+  navMeta.setAttribute('content', color);
+  // Forcer la couleur de fond sur html et body pour couvrir les zones système
+  document.documentElement.style.setProperty('background', color, 'important');
+  document.body.style.setProperty('background', color, 'important');
 }
 
 function getSkinBg(name) {

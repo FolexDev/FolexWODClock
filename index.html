@@ -657,15 +657,15 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
   <!-- Validate button -->
   <button id="ft-validate-btn" onclick="ftValidate()" style="margin:0 20px 6px;padding:13px;background:var(--accent);color:var(--bg);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;border-radius:14px;border:none;cursor:pointer;box-shadow:0 4px 20px var(--accent-glow);width:calc(100% - 40px);flex-shrink:0;">✓  Validé — Suivant</button>
 
-  <!-- Exercise list -->
-  <div style="font-size:8px;letter-spacing:3px;color:var(--muted);font-family:'Bebas Neue',sans-serif;padding:2px 20px 4px;text-transform:uppercase;flex-shrink:0;">Tous les exercices</div>
-  <div id="ft-active-list" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:3px;padding:0 20px;"></div>
-
   <!-- Controls -->
-  <div style="border-top:1px solid var(--border);padding:10px 20px 14px;display:flex;gap:8px;flex-shrink:0;">
+  <div style="padding:0 20px 8px;display:flex;gap:8px;flex-shrink:0;">
     <button class="ctrl-btn danger" onclick="ftStop()">■ Stop</button>
     <button class="ctrl-btn primary" id="ft-pause-btn" onclick="ftTogglePause()">⏸ Pause</button>
   </div>
+
+  <!-- Exercise list -->
+  <div style="font-size:8px;letter-spacing:3px;color:var(--muted);font-family:'Bebas Neue',sans-serif;padding:2px 20px 4px;text-transform:uppercase;border-top:1px solid var(--border);flex-shrink:0;">Tous les exercices</div>
+  <div id="ft-active-list" style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:3px;padding:0 20px 10px;"></div>
 </div>
 
 

@@ -1058,6 +1058,19 @@ function cpickSelect(target) {
   cpick.target = target;
   document.querySelectorAll('.cpick-tab').forEach(t => t.classList.remove('active'));
   document.getElementById('cpick-tab-'+target).classList.add('active');
+  // Surbrillance du swatch actif
+  ['bg','accent','accent2'].forEach(k => {
+    const s = document.getElementById('swatch-'+k);
+    if (!s) return;
+    if (k === target) {
+      s.style.outline = '2px solid var(--accent)';
+      s.style.outlineOffset = '3px';
+      s.style.boxShadow = '0 0 8px var(--accent-glow)';
+    } else {
+      s.style.outline = 'none';
+      s.style.boxShadow = 'none';
+    }
+  });
   cpickDrawSV();
   cpickUpdateCursors();
 }
@@ -1086,6 +1099,7 @@ function openCustomSkin() {
     cpickDrawHue();
     cpickUpdateCursors();
     cpickUpdateSwatches();
+    cpickSelect('bg');
   });
 }
 function closeCustomSkin() {

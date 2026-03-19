@@ -2107,11 +2107,21 @@ function renderFTActiveList() {
       : `<div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;"></div>`;
     const nameColor = isDone ? 'var(--muted2)' : isCurrent ? 'var(--accent)' : 'var(--muted)';
     const decoration = isDone ? 'text-decoration:line-through;' : '';
-    return `<div style="display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;${style}">
+    return `<div data-ex-idx="${i}" style="display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:10px;${style}">
       ${checkEl}
       <span style="flex:1;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;color:${nameColor};${decoration}">${ex.name}</span>
     </div>`;
   }).join('');
+  
+  // Scroll automatique pour garder l'exercice courant en 2ème position
+  setTimeout(() => {
+    const currentEl = list.querySelector(`[data-ex-idx="${ftState.exIdx}"]`);
+    if (currentEl) {
+      const itemHeight = currentEl.offsetHeight + 3; // +3 pour le gap
+      const targetScroll = Math.max(0, (ftState.exIdx - 1) * itemHeight);
+      list.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    }
+  }, 50);
 }
 
 function ftTogglePause() {

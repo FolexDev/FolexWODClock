@@ -658,9 +658,25 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
   <button id="ft-validate-btn" onclick="ftValidate()" style="margin:0 20px 6px;padding:13px;background:var(--accent);color:var(--bg);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;border-radius:14px;border:none;cursor:pointer;box-shadow:0 4px 20px var(--accent-glow);width:calc(100% - 40px);flex-shrink:0;">✓  Validé — Suivant</button>
 
   <!-- Controls -->
-  <div style="padding:0 20px 8px;display:flex;gap:8px;flex-shrink:0;">
-    <button class="ctrl-btn danger" onclick="ftStop()">■ Stop</button>
-    <button class="ctrl-btn primary" id="ft-pause-btn" onclick="ftTogglePause()">⏸ Pause</button>
+  <div style="padding:0 20px 8px;flex-shrink:0;">
+
+    <!-- État normal -->
+    <div id="ft-controls-normal" style="display:flex;gap:8px;">
+      <button class="ctrl-btn danger" onclick="ftStopRequest()">■ Stop</button>
+      <button class="ctrl-btn primary" id="ft-pause-btn" onclick="ftTogglePause()">⏸ Pause</button>
+    </div>
+
+    <!-- État confirmation stop -->
+    <div id="ft-controls-confirm" style="display:none;flex-direction:column;gap:6px;width:100%;">
+      <div style="display:flex;gap:8px;width:100%;">
+        <button class="ctrl-btn danger" onclick="ftStopConfirm()">✓ Stop définitif</button>
+        <button class="ctrl-btn primary" onclick="ftStopCancel()">↩ Reprendre (<span id="ft-stop-countdown">5</span>s)</button>
+      </div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--red);font-family:'Bebas Neue',sans-serif;text-align:center;">
+        ⏸ Timer en pause — Confirmer le stop ?
+      </div>
+    </div>
+
   </div>
 
   <!-- Exercise list -->
@@ -699,10 +715,21 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
       <div class="stat-card"><div class="stat-val" id="stat-total-p">--</div><div class="stat-lbl">Restant</div></div>
     </div>
     <div class="chrono-info" id="chrono-info">00:00</div>
-    <div class="ctrl-row portrait-ctrl">
-      <button class="ctrl-btn danger" onclick="stopTimer()">■ Stop</button>
+    <!-- État normal -->
+    <div id="timer-controls-normal" class="ctrl-row portrait-ctrl">
+      <button class="ctrl-btn danger" onclick="timerStopRequest()">■ Stop</button>
       <button class="ctrl-btn" id="btn-lap" onclick="addLap()" style="display:none;background:var(--surface);border-color:var(--border2);color:var(--text);">⊕ Lap</button>
       <button class="ctrl-btn primary" id="btn-pause-p" onclick="togglePause()">⏸ Pause</button>
+    </div>
+    <!-- État confirmation stop -->
+    <div id="timer-controls-confirm" style="display:none;flex-direction:column;gap:6px;width:100%;">
+      <div class="ctrl-row portrait-ctrl">
+        <button class="ctrl-btn danger" onclick="timerStopConfirm()">✓ Stop définitif</button>
+        <button class="ctrl-btn primary" onclick="timerStopCancel()">↩ Reprendre (<span id="timer-stop-countdown">5</span>s)</button>
+      </div>
+      <div style="font-size:9px;letter-spacing:2px;color:var(--red);font-family:'Bebas Neue',sans-serif;text-align:center;">
+        ⏸ Timer en pause — Confirmer le stop ?
+      </div>
     </div>
     <div id="lap-list" style="display:none;flex-direction:column;gap:4px;width:100%;max-height:160px;overflow-y:auto;margin-top:8px;padding:0 2px;"></div>
   </div>
@@ -2296,6 +2323,61 @@ function deleteFTLog(idx) {
   } catch(e) {}
 }
 
+// ── STOP AVEC CONFIRMATION ──
+let ftStopCountdownTimer = null;
+let ftWasPausedBeforeStop = false;
+let ftStopRequestTs = 0;
+
+function ftStopRequest() {
+  ftWasPausedBeforeStop = ftState.paused;
+  ftStopRequestTs = performance.now();
+  // Geler le chrono visuellement
+  if (!ftState.paused) {
+    ftState.paused = true;
+    ftState.pauseOffset += performance.now() - ftState.startTs;
+    ftState.startTs = null;
+    if (ftState.rafId) cancelAnimationFrame(ftState.rafId);
+    const pauseBtn = document.getElementById('ft-pause-btn');
+    if (pauseBtn) pauseBtn.textContent = '▶ Reprendre';
+  }
+  document.getElementById('ft-controls-normal').style.display = 'none';
+  const conf = document.getElementById('ft-controls-confirm');
+  conf.style.display = 'flex';
+  conf.style.flexDirection = 'column';
+  let count = 5;
+  const cdEl = document.getElementById('ft-stop-countdown');
+  if (cdEl) cdEl.textContent = count;
+  ftStopCountdownTimer = setInterval(() => {
+    count--;
+    const el = document.getElementById('ft-stop-countdown');
+    if (el) el.textContent = count;
+    if (count <= 0) ftStopCancel();
+  }, 1000);
+}
+
+function ftStopCancel() {
+  if (ftStopCountdownTimer) { clearInterval(ftStopCountdownTimer); ftStopCountdownTimer = null; }
+  document.getElementById('ft-controls-normal').style.display = 'flex';
+  document.getElementById('ft-controls-confirm').style.display = 'none';
+  if (ftWasPausedBeforeStop) return; // était déjà en pause → rester en pause
+  // Rattraper le temps de la fenêtre de confirmation
+  const confirmElapsed = performance.now() - ftStopRequestTs;
+  ftState.pauseOffset += confirmElapsed;
+  ftState.paused = false;
+  ftState.startTs = performance.now();
+  ftState.rafId = requestAnimationFrame(ftRaf);
+  const pauseBtn = document.getElementById('ft-pause-btn');
+  if (pauseBtn) pauseBtn.textContent = '⏸ Pause';
+}
+
+function ftStopConfirm() {
+  if (ftStopCountdownTimer) { clearInterval(ftStopCountdownTimer); ftStopCountdownTimer = null; }
+  // Remettre l'état normal (pour la prochaine session)
+  document.getElementById('ft-controls-normal').style.display = 'flex';
+  document.getElementById('ft-controls-confirm').style.display = 'none';
+  ftStop();
+}
+
 function ftStop() {
   if (ftState.rafId) cancelAnimationFrame(ftState.rafId);
   releaseWakeLock();
@@ -2322,6 +2404,12 @@ function showFTTimerScreen() {
 }
 
 function hideFTTimerScreen() {
+  // Nettoyer l'état de confirmation stop si actif
+  if (ftStopCountdownTimer) { clearInterval(ftStopCountdownTimer); ftStopCountdownTimer = null; }
+  const normal = document.getElementById('ft-controls-normal');
+  const conf   = document.getElementById('ft-controls-confirm');
+  if (normal) normal.style.display = 'flex';
+  if (conf)   conf.style.display   = 'none';
   document.getElementById('ft-timer-screen').style.display = 'none';
   document.getElementById('swipe-container').style.display = '';
   document.getElementById('tab-bar').style.display = 'flex';
@@ -2391,6 +2479,9 @@ function showTimerScreen(){
   document.getElementById('tab-bar').style.display='none';
 }
 function showConfigScreen(){
+  if(timerStopCountdownTimer){clearInterval(timerStopCountdownTimer);timerStopCountdownTimer=null;}
+  const tn=document.getElementById('timer-controls-normal'),tc=document.getElementById('timer-controls-confirm');
+  if(tn)tn.style.display='flex';if(tc)tc.style.display='none';
   document.getElementById('timer-screen').classList.remove('active');
   document.getElementById('swipe-container').style.display='';
   document.getElementById('tab-bar').style.display='flex';
@@ -2523,7 +2614,47 @@ function togglePause(){
   else{setPauseBtn('⏸ Pause');setStatus('active','ACTIF');soundTick();if(currentMode==='chrono'){chronoStartTs=null;}else{phaseStartTs=null;_phaseResumeOffset=_pausedRemaining;}}
 }
 let _pausedRemaining=0,_phaseResumeOffset=0;
+
+// ── STOP EN DEUX PHASES (Fractionné / AMRAP / Chrono) ──
+let timerStopCountdownTimer=null,timerStopRequestTs=0,timerWasPausedAtStop=false;
+function timerStopRequest(){
+  timerWasPausedAtStop=isPaused;
+  timerStopRequestTs=performance.now();
+  // Geler le chrono visuellement
+  if(!isPaused){
+    isPaused=true;
+    if(currentMode==='chrono'){chronoPauseOffset=chronoElapsed;chronoStartTs=null;}
+    else{_pausedRemaining=phaseRemaining;}
+    setPauseBtn('▶ Reprendre');setStatus('paused','PAUSE');
+  }
+  document.getElementById('timer-controls-normal').style.display='none';
+  const conf=document.getElementById('timer-controls-confirm');conf.style.display='flex';conf.style.flexDirection='column';
+  let count=5;const cdEl=document.getElementById('timer-stop-countdown');if(cdEl)cdEl.textContent=count;
+  timerStopCountdownTimer=setInterval(()=>{count--;const el=document.getElementById('timer-stop-countdown');if(el)el.textContent=count;if(count<=0)timerStopCancel();},1000);
+}
+function timerStopCancel(){
+  if(timerStopCountdownTimer){clearInterval(timerStopCountdownTimer);timerStopCountdownTimer=null;}
+  document.getElementById('timer-controls-normal').style.display='flex';
+  document.getElementById('timer-controls-confirm').style.display='none';
+  if(timerWasPausedAtStop)return; // était déjà en pause → rester en pause
+  // Rattraper le temps de la fenêtre de confirmation
+  const confirmElapsed=(performance.now()-timerStopRequestTs)/1000;
+  isPaused=false;setPauseBtn('⏸ Pause');setStatus('active','ACTIF');
+  if(currentMode==='chrono'){chronoPauseOffset=chronoElapsed+confirmElapsed;chronoStartTs=null;}
+  else{_phaseResumeOffset=Math.max(0,phaseRemaining-confirmElapsed);phaseStartTs=null;}
+}
+function timerStopConfirm(){
+  if(timerStopCountdownTimer){clearInterval(timerStopCountdownTimer);timerStopCountdownTimer=null;}
+  document.getElementById('timer-controls-normal').style.display='flex';
+  document.getElementById('timer-controls-confirm').style.display='none';
+  // Le display est gelé au moment du premier appui → temps correct
+  stopTimer();
+}
+
 function stopTimer(){
+  if(timerStopCountdownTimer){clearInterval(timerStopCountdownTimer);timerStopCountdownTimer=null;}
+  const tn=document.getElementById('timer-controls-normal'),tc=document.getElementById('timer-controls-confirm');
+  if(tn)tn.style.display='flex';if(tc)tc.style.display='none';
   if(rafId){cancelAnimationFrame(rafId);rafId=null;}
   if(timerInterval){clearInterval(timerInterval);timerInterval=null;}
   isPaused=false;phaseStartTs=null;chronoPauseOffset=0;setPauseBtn('⏸ Pause');releaseWakeLock();

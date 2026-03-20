@@ -1812,6 +1812,7 @@ function toggleFTTimecap() {
   document.getElementById('ft-timecap-toggle').classList.toggle('on', ftTimecapOn);
   const field = document.getElementById('ft-timecap-field');
   if (field) field.style.display = ftTimecapOn ? 'flex' : 'none';
+  saveFTState();
 }
 function inputFTCap(el) {
   const parts = el.value.split(':');
@@ -2770,7 +2771,7 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 // ══ PRESETS ══
 const PRESETS_KEY='sporttimer_presets';
 let presets={interval:[],degressive:[],chrono:[],fortime:[]},_pendingPresetMode=null;
-function loadPresets(){try{const raw=localStorage.getItem(PRESETS_KEY);if(raw)presets={interval:[],degressive:[],chrono:[],...JSON.parse(raw)};}catch(e){}}
+function loadPresets(){try{const raw=localStorage.getItem(PRESETS_KEY);if(raw)presets={interval:[],degressive:[],chrono:[],fortime:[],...JSON.parse(raw)};}catch(e){}}
 function savePresets(){try{localStorage.setItem(PRESETS_KEY,JSON.stringify(presets));}catch(e){}}
 function openPresetModal(mode){_pendingPresetMode=mode;const input=document.getElementById('preset-name-input');input.value='';document.getElementById('preset-modal-wrap').classList.add('active');setTimeout(()=>input.focus(),100);}
 function closePresetModal(){document.getElementById('preset-modal-wrap').classList.remove('active');_pendingPresetMode=null;}
@@ -2787,7 +2788,7 @@ function loadPreset(mode,idx){
   const p=presets[mode][idx];if(!p)return;
   if(mode==='interval'){vals.i_exo=p.config.exo;vals.i_rest=p.config.rest;vals.i_reps=p.config.reps;renderAll();updateSummaryInterval();}
   else if(mode==='degressive'){degSteps=JSON.parse(JSON.stringify(p.config.steps));renderDegList();}
-  else if(mode==='fortime'){ftVals.ft_rounds=p.config.rounds;ftExercises=JSON.parse(JSON.stringify(p.config.exercises));renderFTVal('ft_rounds');renderFTList();}
+  else if(mode==='fortime'){ftVals.ft_rounds=p.config.rounds;ftExercises=JSON.parse(JSON.stringify(p.config.exercises));renderFTVal('ft_rounds');renderFTList();saveFTState();}
   else{timecapOn=p.config.timecapOn;if(timecapOn)vals.c_cap=p.config.cap;document.getElementById('timecap-toggle').classList.toggle('on',timecapOn);document.getElementById('timecap-field').style.display=timecapOn?'flex':'none';renderAll();}
   saveState();
 }
@@ -2795,7 +2796,7 @@ function deletePreset(mode,idx){presets[mode].splice(idx,1);savePresets();render
 function renderPresets(mode){
   const bar=document.getElementById('presets-'+mode);if(!bar)return;
   bar.innerHTML=`<button class="preset-save-btn" onclick="openPresetModal('${mode}')">+ Sauvegarder</button>`;
-  presets[mode].forEach((p,i)=>{const chip=document.createElement('div');chip.className='preset-chip';chip.innerHTML=`<button class="preset-load" onclick="loadPreset('${mode}',${i})">${p.name}</button><button class="preset-del" onclick="deletePreset('${mode}',${i})">✕</button>`;bar.appendChild(chip);});
+  (presets[mode]||[]).forEach((p,i)=>{const chip=document.createElement('div');chip.className='preset-chip';chip.innerHTML=`<button class="preset-load" onclick="loadPreset('${mode}',${i})">${p.name}</button><button class="preset-del" onclick="deletePreset('${mode}',${i})">✕</button>`;bar.appendChild(chip);});
 }
 function renderAllPresets(){['interval','degressive','chrono','fortime'].forEach(renderPresets);}
 document.getElementById('preset-name-input').addEventListener('keydown',e=>{if(e.key==='Enter')confirmSavePreset();if(e.key==='Escape')closePresetModal();});

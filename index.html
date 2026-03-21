@@ -314,10 +314,14 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
 .stat-card.serie-card { flex: 1; }
 .stat-card.serie-card .stat-val { font-size: 20px; color: var(--accent); }
 .chrono-info { display: none; font-family: 'Bebas Neue', sans-serif; font-size: 13px; color: var(--muted); letter-spacing: 2px; margin-bottom: 14px; }
-#exo-name-box { display: none; width: 100%; background: var(--accent-dim); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 10px 16px; position: relative; overflow: hidden; flex-shrink: 0; margin-bottom: 10px; }
-#exo-name-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); }
-.enb-label { font-size: 8px; letter-spacing: 3px; color: var(--accent); font-family: 'Bebas Neue', sans-serif; margin-bottom: 3px; }
-.enb-name { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--text); letter-spacing: 2px; line-height: 1.1; }
+#exo-name-box { display: none; width: 100%; background: var(--accent-dim); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 10px 16px; position: relative; overflow: hidden; flex-shrink: 0; margin-bottom: 10px; transition: background .2s, border-color .2s; }
+#exo-name-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); transition: background .2s; }
+#exo-name-box.pause-mode, #exo-name-box.rest-mode { background: var(--amber-dim) !important; border-color: rgba(251,191,36,.25) !important; }
+#exo-name-box.pause-mode::before, #exo-name-box.rest-mode::before { background: var(--amber) !important; }
+#exo-name-box.pause-mode .enb-label, #exo-name-box.rest-mode .enb-label { color: var(--amber) !important; }
+#exo-name-box.pause-mode .enb-name, #exo-name-box.rest-mode .enb-name { color: var(--amber) !important; letter-spacing: 3px; }
+.enb-label { font-size: 8px; letter-spacing: 3px; color: var(--accent); font-family: 'Bebas Neue', sans-serif; margin-bottom: 3px; transition: color .2s; }
+.enb-name { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--text); letter-spacing: 2px; line-height: 1.1; transition: color .2s; }
 .enb-desc { font-size: 10px; color: var(--muted); margin-top: 3px; font-family: 'Bebas Neue', sans-serif; }
 .lap-item { display: flex; align-items: center; justify-content: space-between; padding: 5px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-family: 'Bebas Neue', sans-serif; font-size: 12px; letter-spacing: 1px; }
 .lap-num { color: var(--muted); }
@@ -652,7 +656,7 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
   <div id="ft-active-list" style="flex-shrink:0;display:flex;flex-direction:column;gap:2px;padding:0 20px 5px;"></div>
 
   <!-- Exercice courant -->
-  <div style="margin:0 20px 5px;background:var(--accent-dim);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:9px 16px;position:relative;overflow:hidden;flex-shrink:0;">
+  <div style="margin:0 20px 8px;background:var(--accent-dim);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:9px 16px;position:relative;overflow:hidden;flex-shrink:0;">
     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);"></div>
     <div style="font-size:8px;letter-spacing:3px;color:var(--accent);font-family:'Bebas Neue',sans-serif;margin-bottom:2px;">EN COURS</div>
     <div id="ft-current-name" style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--text);letter-spacing:2px;line-height:1.1;"></div>
@@ -660,7 +664,7 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
   </div>
 
   <!-- Bouton valider -->
-  <button id="ft-validate-btn" onclick="ftValidate()" style="margin:0 20px 7px;padding:12px;background:var(--accent);color:var(--bg);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;border-radius:14px;border:none;cursor:pointer;box-shadow:0 4px 20px var(--accent-glow);width:calc(100% - 40px);flex-shrink:0;">✓  Validé — Suivant</button>
+  <button id="ft-validate-btn" onclick="ftValidate()" style="margin:0 20px 8px;padding:12px;background:var(--accent);color:var(--bg);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;border-radius:14px;border:none;cursor:pointer;box-shadow:0 4px 20px var(--accent-glow);width:calc(100% - 40px);flex-shrink:0;">✓  Validé — Suivant</button>
 
   <!-- Stats -->
   <div class="stats-row" id="ft-stats-row" style="padding:0 20px;">
@@ -714,7 +718,7 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
     </div>
     <!-- Bloc inférieur collé aux boutons -->
     <div id="exo-name-box">
-      <div class="enb-label">EN COURS</div>
+      <div class="enb-label" id="enb-label">EN COURS</div>
       <div id="exo-name-text" class="enb-name"></div>
       <div id="exo-desc-text" class="enb-desc"></div>
     </div>
@@ -726,7 +730,7 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
     <div class="chrono-info" id="chrono-info">00:00</div>
     <!-- Zone de contrôle : lap list + lap btn + message réservé + boutons -->
     <div style="width:100%;padding-bottom:16px;flex-shrink:0;">
-      <div id="lap-list" style="display:none;flex-direction:column;gap:4px;width:100%;max-height:110px;overflow-y:auto;margin-bottom:6px;padding:0 2px;"></div>
+      <div id="lap-list" style="display:none;flex-direction:column;gap:4px;width:100%;overflow-y:auto;margin-bottom:6px;padding:0 2px;"></div>
       <button class="ctrl-btn" id="btn-lap" onclick="addLap()" style="display:none;width:100%;background:var(--surface);border-color:var(--border2);color:var(--text);margin-bottom:8px;">⊕ Lap</button>
       <div id="timer-controls-normal" class="ctrl-row portrait-ctrl">
         <button class="ctrl-btn danger" onclick="timerStopRequest()">■ Stop</button>
@@ -2551,15 +2555,23 @@ function updatePhaseUI(remaining){
   }
   phaseEl.className='t-phase'+(isRest?' rest':'');
   const timeEl=document.getElementById('ring-time');timeEl.textContent=fmt(Math.ceil(remaining));timeEl.className='ring-time'+(isRest?' rest':'')+(remaining<=5&&!isRest?' urgent':'');
-  // Boîte nom d'exercice (en-dessous du cercle)
-  const nameBox = document.getElementById('exo-name-box');
-  if (nameBox) {
-    if (!isRest) {
+  // Boîte nom d'exercice — jamais cachée, amber en repos/pause
+  if (!isPaused) {
+    const nameBox = document.getElementById('exo-name-box');
+    const lbl = document.getElementById('enb-label');
+    if (nameBox) {
       nameBox.style.display = 'block';
-      document.getElementById('exo-name-text').textContent = p.name || `Exercice #${p.serie}`;
-      document.getElementById('exo-desc-text').textContent = p.desc || '';
-    } else {
-      nameBox.style.display = 'none';
+      if (!isRest) {
+        nameBox.classList.remove('rest-mode');
+        if (lbl) lbl.textContent = 'EN COURS';
+        document.getElementById('exo-name-text').textContent = p.name || `Exercice #${p.serie}`;
+        document.getElementById('exo-desc-text').textContent = p.desc || '';
+      } else {
+        nameBox.classList.add('rest-mode');
+        if (lbl) lbl.textContent = 'EN COURS';
+        document.getElementById('exo-name-text').textContent = '— Repos —';
+        document.getElementById('exo-desc-text').textContent = '';
+      }
     }
   }
   // Durant une pause en mode dégressif : afficher le nom du prochain exercice
@@ -2598,7 +2610,6 @@ function addLap() {
 function renderLaps() {
   const list = document.getElementById('lap-list');
   if (!list) return;
-  list.style.display = 'flex';
   list.innerHTML = _laps.slice().reverse().map((l, ri) => {
     const i = _laps.length - ri;
     return `<div class="lap-item">
@@ -2607,12 +2618,13 @@ function renderLaps() {
       <span class="lap-total">${fmt(l.total)}</span>
     </div>`;
   }).join('');
+  list.scrollTop = 0;
 }
 
 function launchChrono(){
   _laps = [];
   const lapList = document.getElementById('lap-list');
-  if(lapList){ lapList.style.display='none'; lapList.innerHTML=''; }
+  if(lapList){ lapList.style.display='flex'; lapList.style.height='136px'; lapList.innerHTML=''; }
   const lapBtn = document.getElementById('btn-lap');
   if(lapBtn) lapBtn.style.display='';
   isPaused=false;chronoStartTs=null;chronoPauseOffset=0;setPauseBtn('❚❚ Pause');setStatus('active','ACTIF');
@@ -2638,8 +2650,30 @@ function rafChrono(ts){
 function setPauseBtn(txt){const b1=document.getElementById('btn-pause'),b2=document.getElementById('btn-pause-p');if(b1){b1.textContent=txt;b1.style.display='';}if(b2){b2.textContent=txt;b2.style.display='';}}
 function togglePause(){
   isPaused=!isPaused;
-  if(isPaused){setPauseBtn('▶ Reprendre');setStatus('paused','PAUSE');if(currentMode==='chrono'){chronoPauseOffset=chronoElapsed;chronoStartTs=null;}else{_pausedRemaining=phaseRemaining;}}
-  else{setPauseBtn('❚❚ Pause');setStatus('active','ACTIF');soundTick();if(currentMode==='chrono'){chronoStartTs=null;}else{phaseStartTs=null;_phaseResumeOffset=_pausedRemaining;}}
+  if(isPaused){
+    setPauseBtn('▶ Reprendre');setStatus('paused','PAUSE');
+    if(currentMode==='chrono'){chronoPauseOffset=chronoElapsed;chronoStartTs=null;}
+    else{
+      _pausedRemaining=phaseRemaining;
+      const nb=document.getElementById('exo-name-box');
+      if(nb){
+        nb.style.display='block';nb.classList.add('pause-mode');
+        const lbl=document.getElementById('enb-label');if(lbl)lbl.textContent='EN PAUSE';
+        document.getElementById('exo-name-text').textContent='❚❚ PAUSE';
+        document.getElementById('exo-desc-text').textContent='';
+      }
+    }
+  } else {
+    setPauseBtn('❚❚ Pause');setStatus('active','ACTIF');soundTick();
+    if(currentMode==='chrono'){chronoStartTs=null;}
+    else{
+      phaseStartTs=null;_phaseResumeOffset=_pausedRemaining;
+      const nb=document.getElementById('exo-name-box');
+      if(nb){nb.classList.remove('pause-mode');nb.classList.remove('rest-mode');}
+      const lbl=document.getElementById('enb-label');if(lbl)lbl.textContent='EN COURS';
+      updatePhaseUI(_pausedRemaining);
+    }
+  }
 }
 let _pausedRemaining=0,_phaseResumeOffset=0;
 

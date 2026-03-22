@@ -2195,16 +2195,15 @@ function renderFTActiveList() {
   if (!list) return;
   const total = ftExercises.length;
   const rounds = ftVals.ft_rounds;
-  const curGlobal = (ftState.round - 1) * total + ftState.exIdx;
   const totalGlobal = rounds * total;
+  const curGlobal = (ftState.round - 1) * total + ftState.exIdx;
   const rLabel = (r) => rounds > 1 ? ` <span style="color:var(--muted2);font-size:10px;">R${r}</span>` : '';
 
-  // Rendu de TOUS les exercices (tous rounds confondus) — la liste est scrollable
+  // ── Rendu de TOUS les exercices (liste scrollable) ─────────────────────────
   let html = '';
   for (let g = 0; g < totalGlobal; g++) {
-    const r = Math.floor(g / total) + 1;
-    const eIdx = g % total;
-    const ex = ftExercises[eIdx];
+    const r  = Math.floor(g / total) + 1;
+    const ex = ftExercises[g % total];
     if (g < curGlobal) {
       html += `<div data-g="${g}" style="display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:8px;opacity:.5;flex-shrink:0;">
         <div style="width:14px;height:14px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--bg);flex-shrink:0;">✓</div>
@@ -2224,13 +2223,30 @@ function renderFTActiveList() {
   }
   list.innerHTML = html;
 
-  // Scroll pour que l'élément courant soit en position 2 (un précédent au-dessus)
+  // ── Auto-scroll : courant en position 2 (algorithme de fenêtrage) ──────────
   requestAnimationFrame(() => {
-    const currentEl = list.querySelector('.ft-list-current');
-    if (!currentEl) return;
-    const prevEl = currentEl.previousElementSibling;
-    const offset = prevEl ? currentEl.offsetTop - prevEl.offsetHeight - 2 : currentEl.offsetTop;
-    list.scrollTop = Math.max(0, offset - 4);
+    const nextAvailable = totalGlobal - curGlobal - 1;
+    let nextCount = Math.min(nextAvailable, 2);
+    let prevCount = 3 - nextCount;
+    prevCount = Math.min(prevCount, curGlobal);
+    const usedTotal = prevCount + 1 + nextCount;
+    if (usedTotal < 4) nextCount += Math.min(4 - usedTotal, nextAvailable - nextCount);
+
+    // L'élément ancre = premier item à afficher en haut de la fenêtre
+    const startG   = curGlobal - prevCount;
+    const anchorEl = list.querySelector(`[data-g="${startG}"]`);
+    if (!anchorEl) { list.scrollTop = 0; return; }
+
+    // Calcul fiable : somme des hauteurs + gaps des frères précédant l'ancre
+    // (offsetTop n'est pas toujours relatif au conteneur scroll)
+    const GAP = 2; // gap entre items en px
+    let offset = 0;
+    let sibling = anchorEl.previousElementSibling;
+    while (sibling) {
+      offset += sibling.offsetHeight + GAP;
+      sibling = sibling.previousElementSibling;
+    }
+    list.scrollTop = offset;
   });
 }
 

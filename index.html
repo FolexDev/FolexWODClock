@@ -469,6 +469,7 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
             onblur="inputDegRounds(this)" onkeydown="if(event.key==='Enter')this.blur()"
             style="color:var(--amber);width:32px;font-size:32px;text-align:center;">
           <button class="spin-btn" onclick="adjDegRounds(1)" style="background:var(--amber-dim);border-color:rgba(251,191,36,.2);">+</button>
+          <button onclick="resetDegRounds()" title="Remettre à 1" style="width:28px;height:28px;border-radius:50%;border:1px solid rgba(251,191,36,.3);background:transparent;color:var(--amber);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.7;transition:opacity .15s;" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=.7">↺</button>
         </div>
       </div>
 
@@ -553,6 +554,7 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
           <input class="val-display small" id="disp-ft_rounds" type="text" inputmode="numeric" maxlength="2"
             onblur="inputFTRounds(this)" onkeydown="if(event.key==='Enter')this.blur()" style="color:var(--amber);width:32px;">
           <button class="spin-btn" onclick="adjFT('ft_rounds',1)" style="width:28px;height:28px;">+</button>
+          <button onclick="resetFTRounds()" title="Remettre à 1" style="width:24px;height:24px;border-radius:50%;border:1px solid rgba(251,191,36,.3);background:transparent;color:var(--amber);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.7;transition:opacity .15s;" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=.7">↺</button>
         </div>
         <!-- Time Cap -->
         <div style="display:flex;align-items:center;gap:6px;flex:1;justify-content:flex-end;">
@@ -1559,6 +1561,7 @@ function resetDegSteps() { degSteps = []; renderDegList(); saveState(); }
 function adjDegRounds(d){ degRounds=Math.max(1,Math.min(99,degRounds+d)); renderDegRounds(); updateSummaryDegressive(); saveState(); }
 function inputDegRounds(el){ const v=parseInt(el.value); if(!isNaN(v)) degRounds=Math.max(1,Math.min(99,v)); renderDegRounds(); updateSummaryDegressive(); saveState(); }
 function renderDegRounds(){ const el=document.getElementById('disp-deg-rounds'); if(el) el.value=degRounds; }
+function resetDegRounds(){ degRounds=1; renderDegRounds(); updateSummaryDegressive(); saveState(); }
 
 // ── EXPORT / IMPORT WOD ──
 function openShareWOD(mode) {
@@ -1888,6 +1891,7 @@ function inputFTRounds(el) {
   renderFTList();
   saveFTState();
 }
+function resetFTRounds(){ ftVals.ft_rounds=1; renderFTVal('ft_rounds'); updateFTHint(); renderFTList(); saveFTState(); }
 function updateFTHint() {
   const el = document.getElementById('ft-rounds-hint');
   const total = ftVals.ft_rounds * ftExercises.length;

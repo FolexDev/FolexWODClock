@@ -12,19 +12,19 @@
   "categories": ["sports", "health & fitness"],
   "icons": [
     {
-      "src": "https://raw.githubusercontent.com/FolexDev/FolexWODClock/main/icon.png",
+      "src": "https://folexdev.github.io/FolexWODClock/icon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://raw.githubusercontent.com/FolexDev/FolexWODClock/main/icon.png",
+      "src": "https://folexdev.github.io/FolexWODClock/icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "https://raw.githubusercontent.com/FolexDev/FolexWODClock/main/icon.png",
+      "src": "https://folexdev.github.io/FolexWODClock/icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

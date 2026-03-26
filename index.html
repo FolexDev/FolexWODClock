@@ -398,53 +398,55 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
   <div class="swipe-container" id="swipe-container">
   <div class="swipe-track" id="swipe-track">
   <!-- INTERVAL -->
-  <div class="screen" id="screen-interval">
-    <div class="sec-title">Configuration</div>
-    <div style="margin:0 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);">
-      <div class="field-row">
-        <div><div class="field-label">Exercice</div><div class="field-sub">Durée par série</div></div>
-        <div class="field-ctrl">
-          <button class="spin-btn" onclick="adj('i_exo',-10)">−</button>
-          <input class="val-display" id="disp-i_exo" type="text" inputmode="numeric" maxlength="5" onblur="inputTime('i_exo',this)" onkeydown="if(event.key==='Enter')this.blur()">
-          <button class="spin-btn" onclick="adj('i_exo',10)">+</button>
+  <div class="screen" id="screen-interval" style="overflow:hidden;">
+    <div style="flex:1;overflow-y:auto;min-height:0;padding-bottom:8px;">
+      <div class="sec-title">Configuration</div>
+      <div style="margin:0 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);">
+        <div class="field-row">
+          <div><div class="field-label">Exercice</div><div class="field-sub">Durée par série</div></div>
+          <div class="field-ctrl">
+            <button class="spin-btn" onclick="adj('i_exo',-10)">−</button>
+            <input class="val-display" id="disp-i_exo" type="text" inputmode="numeric" maxlength="5" onblur="inputTime('i_exo',this)" onkeydown="if(event.key==='Enter')this.blur()">
+            <button class="spin-btn" onclick="adj('i_exo',10)">+</button>
+          </div>
+        </div>
+        <div class="field-row">
+          <div><div class="field-label">Pause</div><div class="field-sub">Entre les séries</div></div>
+          <div class="field-ctrl">
+            <button class="spin-btn" onclick="adj('i_rest',-5)">−</button>
+            <input class="val-display" id="disp-i_rest" type="text" inputmode="numeric" maxlength="5" onblur="inputTime('i_rest',this)" onkeydown="if(event.key==='Enter')this.blur()">
+            <button class="spin-btn" onclick="adj('i_rest',5)">+</button>
+          </div>
+        </div>
+        <div class="field-row">
+          <div><div class="field-label">Séries</div><div class="field-sub">Nombre de répétitions</div></div>
+          <div class="field-ctrl">
+            <button class="spin-btn" onclick="adj('i_reps',-1)">−</button>
+            <input class="val-display small" id="disp-i_reps" type="text" inputmode="numeric" maxlength="2" onblur="inputReps('i_reps',this)" onkeydown="if(event.key==='Enter')this.blur()">
+            <button class="spin-btn" onclick="adj('i_reps',1)">+</button>
+          </div>
+        </div>
+        <div class="field-row" style="flex-direction:column;align-items:stretch;gap:6px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div><div class="field-label">Note d'exercice</div><div class="field-sub">Affiché pendant le timer (optionnel)</div></div>
+            <button onclick="vals.i_note='';document.getElementById('disp-i_note').value='';saveState();" style="font-size:9px;letter-spacing:1.5px;color:var(--muted);background:transparent;border:1px solid var(--border2);border-radius:8px;padding:4px 8px;cursor:pointer;font-family:'Bebas Neue',sans-serif;flex-shrink:0;" ontouchstart="this.style.opacity='.6'" ontouchend="this.style.opacity='1'">✕ Effacer</button>
+          </div>
+          <textarea id="disp-i_note" rows="6" placeholder="Exemple:&#10;• 3 Pull ups&#10;• 7 Push ups&#10;• 12 Squats" oninput="noteInput(this)" onkeydown="noteKeydown(this,event)" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s;resize:vertical;line-height:1.5;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'"></textarea>
         </div>
       </div>
-      <div class="field-row">
-        <div><div class="field-label">Pause</div><div class="field-sub">Entre les séries</div></div>
-        <div class="field-ctrl">
-          <button class="spin-btn" onclick="adj('i_rest',-5)">−</button>
-          <input class="val-display" id="disp-i_rest" type="text" inputmode="numeric" maxlength="5" onblur="inputTime('i_rest',this)" onkeydown="if(event.key==='Enter')this.blur()">
-          <button class="spin-btn" onclick="adj('i_rest',5)">+</button>
-        </div>
+      <div class="summary-card" id="summary-interval">
+        <div class="summary-item"><span class="summary-lbl">Exercice total</span><span class="summary-val" id="sum-i-exo">—</span></div>
+        <div class="summary-sep"></div>
+        <div class="summary-item"><span class="summary-lbl">Durée totale</span><span class="summary-val" id="sum-i-total">—</span></div>
       </div>
-      <div class="field-row">
-        <div><div class="field-label">Séries</div><div class="field-sub">Nombre de répétitions</div></div>
-        <div class="field-ctrl">
-          <button class="spin-btn" onclick="adj('i_reps',-1)">−</button>
-          <input class="val-display small" id="disp-i_reps" type="text" inputmode="numeric" maxlength="2" onblur="inputReps('i_reps',this)" onkeydown="if(event.key==='Enter')this.blur()">
-          <button class="spin-btn" onclick="adj('i_reps',1)">+</button>
+      <div class="preset-section">
+        <div class="sec-title" style="padding:8px 0 4px">Presets</div>
+        <div class="preset-bar" id="presets-interval">
+          <button class="preset-save-btn" onclick="openPresetModal('interval')">+ Sauvegarder</button>
         </div>
-      </div>
-      <div class="field-row" style="flex-direction:column;align-items:stretch;gap:6px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <div><div class="field-label">Note d'exercice</div><div class="field-sub">Affiché pendant le timer (optionnel)</div></div>
-          <button onclick="vals.i_note='';document.getElementById('disp-i_note').value='';saveState();" style="font-size:9px;letter-spacing:1.5px;color:var(--muted);background:transparent;border:1px solid var(--border2);border-radius:8px;padding:4px 8px;cursor:pointer;font-family:'Bebas Neue',sans-serif;flex-shrink:0;" ontouchstart="this.style.opacity='.6'" ontouchend="this.style.opacity='1'">✕ Effacer</button>
-        </div>
-        <textarea id="disp-i_note" rows="6" placeholder="Exemple:&#10;• 3 Pull ups&#10;• 7 Push ups&#10;• 12 Squats" oninput="noteInput(this)" onkeydown="noteKeydown(this,event)" style="width:100%;background:var(--bg);border:1px solid var(--border2);border-radius:10px;padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s;resize:vertical;line-height:1.5;" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border2)'"></textarea>
       </div>
     </div>
-    <div class="summary-card" id="summary-interval">
-      <div class="summary-item"><span class="summary-lbl">Exercice total</span><span class="summary-val" id="sum-i-exo">—</span></div>
-      <div class="summary-sep"></div>
-      <div class="summary-item"><span class="summary-lbl">Durée totale</span><span class="summary-val" id="sum-i-total">—</span></div>
-    </div>
-    <div class="preset-section">
-      <div class="sec-title" style="padding:8px 0 4px">Presets</div>
-      <div class="preset-bar" id="presets-interval">
-        <button class="preset-save-btn" onclick="openPresetModal('interval')">+ Sauvegarder</button>
-      </div>
-    </div>
-    <div class="bottom-bar">
+    <div class="bottom-bar" style="position:static;margin-top:0;">
       <div class="countdown-row">
         <button class="toggle on" id="countdown-toggle-interval" onclick="toggleCountdown('interval')"></button>
         <span class="countdown-lbl">Décompte</span>

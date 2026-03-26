@@ -58,6 +58,20 @@
       "type": "image/png",
       "form_factor": "narrow",
       "label": "WOD Clock – Mode Chrono"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/FolexDev/FolexWODClock/main/screenshots/screenshot-timer-fractionne.png",
+      "sizes": "1080x2217",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "WOD Clock – Timer Fractionné en cours"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/FolexDev/FolexWODClock/main/screenshots/screenshot-timer-fortime.png",
+      "sizes": "1080x2217",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "WOD Clock – Timer For Time en cours"
     }
   ]
 }

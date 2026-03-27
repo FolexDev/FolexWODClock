@@ -160,7 +160,13 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
   padding-bottom: 12px;
   height: 100%;
 }
-.sec-title { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); padding: 12px 20px 8px; }
+.sec-title { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); padding: 12px 20px 8px; display: flex; align-items: center; gap: 8px; }
+.info-btn { width: 16px; height: 16px; border-radius: 50%; background: transparent; border: 1px solid var(--accent); color: var(--accent); font-size: 9px; font-family: 'DM Sans', sans-serif; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; letter-spacing: 0; text-transform: none; opacity: .7; transition: opacity .15s; }
+.info-btn:active { opacity: 1; }
+#info-tooltip { display: none; position: fixed; z-index: 400; background: var(--surface); border: 1px solid var(--border2); border-radius: 12px; padding: 12px 14px; max-width: 260px; box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+#info-tooltip.active { display: block; }
+#info-tooltip-title { font-family: 'Bebas Neue', sans-serif; font-size: 15px; letter-spacing: 2px; color: var(--text); margin-bottom: 6px; }
+#info-tooltip-body { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--muted); line-height: 1.6; white-space: pre-line; }
 
 /* ── CONFIG ── */
 .config-card { margin: 0 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
@@ -400,7 +406,7 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
   <!-- INTERVAL -->
   <div class="screen" id="screen-interval" style="overflow:hidden;">
     <div style="flex:1;overflow-y:auto;min-height:0;padding-bottom:8px;">
-      <div class="sec-title">Configuration</div>
+      <div class="sec-title">Configuration <button class="info-btn" onclick="openInfo('interval',this)">i</button></div>
       <div style="margin:0 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);">
         <div class="field-row">
           <div><div class="field-label">Exercice</div><div class="field-sub">Durée par série</div></div>
@@ -462,7 +468,7 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
 
   <!-- AMRAP -->
   <div class="screen" id="screen-degressive">
-    <div class="sec-title">Ajouter un palier</div>
+    <div class="sec-title">Ajouter un palier <button class="info-btn" onclick="openInfo('degressive',this)">i</button></div>
     <div style="margin:0 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);">
       <div class="field-row">
         <div><div class="field-label">Exercice</div><div class="field-sub">Durée par palier</div></div>
@@ -533,7 +539,7 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
 
   <!-- FOR TIME -->
   <div class="screen" id="screen-fortime">
-    <div class="sec-title">Ajouter un exercice</div>
+    <div class="sec-title">Ajouter un exercice <button class="info-btn" onclick="openInfo('fortime',this)">i</button></div>
     <div class="deg-add-card">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border);">
         <!-- Rounds -->
@@ -606,7 +612,7 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
 
   <!-- CHRONO -->
   <div class="screen" id="screen-chrono">
-    <div class="sec-title">Configuration</div>
+    <div class="sec-title">Configuration <button class="info-btn" onclick="openInfo('chrono',this)">i</button></div>
     <div class="config-card">
       <div class="field-row">
         <div class="toggle-row">
@@ -786,6 +792,12 @@ header { padding: 14px 20px 10px; padding-top: calc(14px + env(safe-area-inset-t
     </div>
     <div id="ft-log-content" style="overflow-y:auto;flex:1;"></div>
   </div>
+</div>
+
+<!-- INFO TOOLTIP -->
+<div id="info-tooltip">
+  <div id="info-tooltip-title"></div>
+  <div id="info-tooltip-body"></div>
 </div>
 
 <!-- FOR TIME EXPORT MODAL -->
@@ -3019,6 +3031,44 @@ setupFTDragDrop();
 ['touchstart','click','keydown'].forEach(ev=>document.addEventListener(ev,()=>{try{ctx();}catch(e){}},{once:true}));
 
 // Service Worker déjà enregistré dans le head
+
+// ══ INFO MODAL ══
+const INFO_TEXTS = {
+  interval: {
+    title: 'Intervalles',
+    body: `Répète un effort suivi d'une pause, X fois.\nEx : 3 min effort / 1 min repos × 5\n\nTu peux ajouter une liste d'exercices à exécuter par intervalle.`
+  },
+  degressive: {
+    title: 'AMRAP',
+    body: `Enchaîne un exercice en boucle sur un nombre de rounds défini.\nEx : Burpees 2 min → Repos 1 min → Squats 2 min × 3`
+  },
+  fortime: {
+    title: 'For Time',
+    body: `Liste d'exercices à cocher dans l'ordre, le plus vite possible.\nTime Cap optionnel.`
+  },
+  chrono: {
+    title: 'Chrono',
+    body: `Chronomètre libre avec laps et Time Cap optionnel.`
+  }
+};
+function openInfo(mode, btn) {
+  const d = INFO_TEXTS[mode]; if (!d) return;
+  const tip = document.getElementById('info-tooltip');
+  document.getElementById('info-tooltip-title').textContent = d.title;
+  document.getElementById('info-tooltip-body').textContent = d.body;
+  tip.classList.add('active');
+  const r = btn.getBoundingClientRect();
+  const tw = 260, th = tip.offsetHeight;
+  let left = r.left;
+  let top = r.bottom + 8;
+  if (left + tw > window.innerWidth - 8) left = window.innerWidth - tw - 8;
+  if (top + th > window.innerHeight - 8) top = r.top - th - 8;
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+}
+document.addEventListener('click', e => {
+  if (!e.target.classList.contains('info-btn')) document.getElementById('info-tooltip').classList.remove('active');
+});
 </script>
 </body>
 </html>

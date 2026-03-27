@@ -3,7 +3,7 @@
   "name": "WOD Clock",
   "short_name": "WOD Clock",
   "description": "Timer sportif : fractionné, AMRAP, For Time et chrono pour vos WODs et entraînements HIIT.",
-  "start_url": "./Index.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
